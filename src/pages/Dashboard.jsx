@@ -1,8 +1,9 @@
 import { useFetch } from "../hooks/useFetch";
 
 const Dashboard = () => {
-
-  const { data, error,loading } = useFetch("http://127.0.0.1:5001/auth/user");
+  const { data, error, loading } = useFetch(
+    "https://talenthub-server-topaz.vercel.app/auth/user",
+  );
   return (
     <div className='container mt-4'>
       <h2>Dashboard (Protected)</h2>

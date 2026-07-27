@@ -1,13 +1,11 @@
 import { createContext, useContext, useState } from "react";
 import toast from "react-hot-toast";
 import API_URL from "../api/axiosHelper";
-// import { toast } from "react-toastify";
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("fspToken"));
   const isLoggedIn = !!token;
-  console.log(isLoggedIn);
 
   function logout() {
     localStorage.removeItem("fspToken");
@@ -16,8 +14,7 @@ const AuthProvider = ({ children }) => {
   }
   async function userRegister(data) {
     try {
-      const res = await API_URL.post("/auth/register", data);
-      console.log("register user", res);
+      await API_URL.post("/auth/register", data);
       toast.success("Registration Successful");
       return true;
     } catch (error) {
@@ -29,7 +26,6 @@ const AuthProvider = ({ children }) => {
   async function login(data) {
     try {
       const response = await API_URL.post("/auth/login", data);
-      console.log("Login user", response);
       if (!response.data?.token) {
         toast.error("Invalid Token");
         return false;
