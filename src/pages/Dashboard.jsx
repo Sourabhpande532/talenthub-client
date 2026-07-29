@@ -1,9 +1,8 @@
 import { useFetch } from "../hooks/useFetch";
+const url = process.env.REACT_APP_API_BASE_URL;
 
 const Dashboard = () => {
-  const { data, error, loading } = useFetch(
-    "https://talenthub-server-topaz.vercel.app/auth/user",
-  );
+  const { data, error, loading } = useFetch(`${url}/auth/user`);
   return (
     <div className='container mt-4'>
       <h2>Dashboard (Protected)</h2>
