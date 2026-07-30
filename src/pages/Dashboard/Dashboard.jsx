@@ -1,4 +1,4 @@
-import { useFetch } from "../hooks/useFetch";
+import { useFetch } from "../../hooks/useFetch";
 const url = process.env.REACT_APP_API_BASE_URL;
 
 const Dashboard = () => {

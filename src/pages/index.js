@@ -1,6 +1,9 @@
-import Dashboard from "./Dashboard";
+import Dashboard from "./Dashboard/Dashboard";
 import Landing from "./Landing/Landing";
-import Reports from "./Reports";
-import Login from "./Login";
-import Register from "./Register";
-export { Dashboard, Landing, Reports, Login, Register };
+import Login from "./Login/Login";
+import Register from "./Register/Register";
+import Jobs from "./Jobs/Jobs";
+import JobDetails from "./JobDetails/JobDetails";
+import Profile from "./Profile/Profile";
+import CreateJob from "./CreateJob/CreateJob";
+export { Dashboard, Landing, Login, Register, Jobs, JobDetails, Profile,CreateJob };

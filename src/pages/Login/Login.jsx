@@ -1,33 +1,13 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
-  const { login } = useAuth();
   const navigate = useNavigate();
 
-  async function handleGuestLogin() {
-    const guestCredentials = {
-      email: "admin@gmail.com",
-      password: "1234",
-    };
-    setForm(guestCredentials);
-    const guestSuccess = await login(guestCredentials);
-    if (guestSuccess) {
-      navigate("/dashboard", { replace: true });
-    }
-  }
   async function handleLogin(e) {
     e.preventDefault();
-    try {
-      const loggedSuccess = await login(form);
-      if (loggedSuccess) {
-        navigate("/dashboard", { replace: true });
-      }
-    } catch (error) {
-      console.error(error.message);
-    }
   }
   return (
     <div className='login-page-container'>
@@ -63,14 +43,6 @@ const Login = () => {
           <button type='submit' className='login-btn'>
             Sign In
           </button>
-
-          <button
-            type='button'
-            className='guest-btn'
-            onClick={handleGuestLogin}>
-            Try as Guest
-          </button>
-
           <div className='sign-link-container'>
             Don't have an account? <Link to='/register'>Create Account</Link>
           </div>

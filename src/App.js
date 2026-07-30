@@ -1,23 +1,36 @@
-import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Toaster } from "react-hot-toast";
-import Header from "./components/header/Header";
+import Header from "./components/Header/Header";
 import ProtectingRoutes from "./routes/ProtectingRoutes";
-import { Dashboard, Landing, Login, Register, Reports } from "./pages";
+import {
+  CreateJob,
+  Dashboard,
+  JobDetails,
+  Jobs,
+  Landing,
+  Login,
+  Profile,
+  Register,
+} from "./pages";
 function App() {
   return (
     <BrowserRouter className=''>
       <Header />
       <Toaster position='top-right' reverseOrder={true} />
       <ToastContainer position='top-right' autoClose={3000} />
+      {/* Public Routes */}
       <Routes>
         <Route path='/' element={<Landing />} />
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
+        <Route path='/jobs' element={<Jobs />} />
+        <Route path='/jobs/:id' element={<JobDetails />} />
+
+        {/* Protected Routes - Accessible by any logged-in user */}
         <Route
           path='/dashboard'
           element={
@@ -27,10 +40,19 @@ function App() {
           }
         />
         <Route
-          path='/report'
+          path='/dashboard'
           element={
             <ProtectingRoutes>
-              <Reports />
+              <Profile />
+            </ProtectingRoutes>
+          }
+        />
+        {/* Protected Routes - Recruiter Only */}
+        <Route
+          path='/create-job'
+          element={
+            <ProtectingRoutes requiredRole='Recruiter'>
+              <CreateJob />
             </ProtectingRoutes>
           }
         />
