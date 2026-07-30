@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./Header.css";
-const Header = () => {
+import "./Navbar.css";
+
+const Navbar = () => {
   const handleLogout = () => {};
   let token = true;
   let user = { role: "" };
@@ -97,4 +98,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export { Navbar };

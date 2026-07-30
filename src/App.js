@@ -4,7 +4,7 @@ import "bootstrap/dist/js/bootstrap.bundle.js";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Toaster } from "react-hot-toast";
-import Header from "./components/Header/Header";
+
 import ProtectingRoutes from "./routes/ProtectingRoutes";
 import {
   CreateJob,
@@ -16,10 +16,11 @@ import {
   Profile,
   Register,
 } from "./pages";
+import { Navbar } from "./components/Navbar/Navbar";
 function App() {
   return (
     <BrowserRouter className=''>
-      <Header />
+      <Navbar />
       <Toaster position='top-right' reverseOrder={true} />
       <ToastContainer position='top-right' autoClose={3000} />
       {/* Public Routes */}
