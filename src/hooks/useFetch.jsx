@@ -18,8 +18,7 @@ export const useFetch = (url) => {
         const response = await fetch(url, {
           headers: headers,
         });
-        console.log(response);
-        
+
         if (response.status === 401 || response.status === 403) {
           throw new Error("Unauthorized");
         }

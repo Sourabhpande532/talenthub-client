@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import "../Register/Register.css";
+import "./Register.css";
 import { LeftSideUserInfo } from "../../components/LeftSide/LeftSideUserInfo";
 import { RightSideUserForm } from "../../components/RightSide/RightSideUserForm";
-
 
 const Register = () => {
   const [role, setRole] = useState("Applicant");

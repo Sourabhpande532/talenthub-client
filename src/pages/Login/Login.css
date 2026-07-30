@@ -1,0 +1,31 @@
+.auth-page {
+  padding-top: 80px; /* Offset for sticky header */
+}
+
+.input-group-text {
+  border-right: none;
+}
+
+.form-control:focus {
+  box-shadow: none;
+  border-color: #dee2e6;
+}
+
+.input-group:focus-within .input-group-text,
+.input-group:focus-within .form-control {
+  border-color: var(--bs-primary);
+  background-color: #fff !important;
+}
+
+.input-group:focus-within i {
+  color: var(--bs-primary) !important;
+}
+
+[data-bs-theme="dark"] .card {
+  background-color: var(--bs-tertiary-bg);
+}
+
+[data-bs-theme="dark"] .bg-light {
+  background-color: var(--bs-body-bg) !important;
+  border-color: rgba(255, 255, 255, 0.1);
+}

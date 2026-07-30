@@ -6,9 +6,6 @@ import { logout } from "../../features/auth/authSlice";
 
 const Navbar = () => {
   const { token, user } = useSelector((state) => state.auth);
-  console.log(token);
-  console.log(user);
-  
   
   const dispatch = useDispatch();
   const navigate = useNavigate();

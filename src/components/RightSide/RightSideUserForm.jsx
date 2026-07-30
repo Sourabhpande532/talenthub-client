@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { registerUser } from "../../features/auth/authSlice";
 
-export const RightSideUserForm = ({ role, setRole }) => {
+function useRegistration() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -58,10 +58,30 @@ export const RightSideUserForm = ({ role, setRole }) => {
       setUploading(false);
     }
   };
+  return {
+    formData,
+    uploading,
+    status,
+    dispatch,
+    navigate,
+    handleChange,
+    handleFileUpload,
+  };
+}
+
+export const RightSideUserForm = ({ role, setRole }) => {
+  const {
+    formData,
+    uploading,
+    status,
+    dispatch,
+    navigate,
+    handleChange,
+    handleFileUpload,
+  } = useRegistration();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
       return;
