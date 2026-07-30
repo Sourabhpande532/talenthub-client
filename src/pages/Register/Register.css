@@ -1,0 +1,23 @@
+.role-select-card:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.role-select-card.bg-white:hover {
+  background-color: #fff; /* Keep white if selected */
+}
+
+.form-control:focus, .form-select:focus {
+  box-shadow: none;
+  border-color: var(--bs-primary);
+  background-color: #fff !important;
+}
+
+[data-bs-theme="dark"] .bg-body {
+  background-color: var(--bs-tertiary-bg) !important;
+}
+
+[data-bs-theme="dark"] .bg-light {
+  background-color: var(--bs-body-bg) !important;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--bs-body-color);
+}
