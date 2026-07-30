@@ -7,16 +7,17 @@ import "react-toastify/dist/ReactToastify.css";
 import { Toaster } from "react-hot-toast";
 import Header from "./components/header/Header";
 import ProtectingRoutes from "./routes/ProtectingRoutes";
-import { Dashboard, Home, Login, Register, Reports } from "./pages";
+import { Dashboard, Landing, Login, Register, Reports } from "./pages";
 function App() {
   return (
     <BrowserRouter className=''>
       <Header />
       <Toaster position='top-right' reverseOrder={true} />
       <ToastContainer position='top-right' autoClose={3000} />
-
       <Routes>
-        <Route path='/' element={<Home />} />
+        <Route path='/' element={<Landing />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
         <Route
           path='/dashboard'
           element={
@@ -33,8 +34,6 @@ function App() {
             </ProtectingRoutes>
           }
         />
-        <Route path='/login' element={<Login />} />
-        <Route path='/register' element={<Register />} />
       </Routes>
     </BrowserRouter>
   );
