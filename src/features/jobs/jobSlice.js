@@ -69,7 +69,6 @@ const jobSlice = createSlice({
         state.currentJobStatus = "loading";
       })
       .addCase(fetchJobById.fulfilled, (state, action) => {
-        console.log("details:", action);
         state.currentJobStatus = "succeeded";
         state.currentJob = action.payload.job;
         state.similarJobs = action.payload.similarJobs || [];
