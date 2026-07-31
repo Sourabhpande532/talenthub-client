@@ -49,6 +49,23 @@ export const fetchApplicantsForJob = createAsyncThunk(
   },
 );
 
+export const updateApplicationStatus = createAsyncThunk(
+  "applications/updateApplicationStatus",
+  async ({ applicationId, status }, { rejectWithValue }) => {
+    try {
+      const response = await API_URL.patch(
+        `/api/applications/${applicationId}/status`,
+        { status },
+      );
+      return { id: applicationId, status: response.data.data.status };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update status",
+      );
+    }
+  },
+);
+
 const initialState = {
   applicantsList: [],
   status: "idle",
@@ -83,6 +100,28 @@ const applicationSlice = createSlice({
       })
       .addCase(withdrawApplication.rejected, (state, action) => {
         toast.error(action.payload);
+      })
+      // Fetch Applicants (Recruiter)
+      .addCase(fetchApplicantsForJob.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchApplicantsForJob.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.applicantsList = action.payload;
+      })
+      .addCase(fetchApplicantsForJob.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      // Update Status (Recruiter)
+      .addCase(updateApplicationStatus.fulfilled, (state, action) => {
+        const index = state.applicantsList.findIndex(
+          (app) => app._id === action.payload.id,
+        );
+        if (index !== -1) {
+          state.applicantsList[index].status = action.payload.status;
+        }
+        toast.success(`Application marked as ${action.payload.status}`);
       });
   },
 });

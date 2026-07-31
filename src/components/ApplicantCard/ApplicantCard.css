@@ -1,0 +1,20 @@
+.applicant-card {
+  border-radius: 12px;
+  background-color: var(--bs-body-bg);
+  transition: all 0.2s ease;
+}
+
+.applicant-card:hover {
+  border-color: rgba(13, 110, 253, 0.2) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
+}
+
+.applicant-avatar {
+  width: 48px;
+  height: 48px;
+  font-size: 1.2rem;
+}
+
+[data-bs-theme="dark"] .applicant-card {
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}

@@ -1,0 +1,32 @@
+.ai-modal-body {
+  background-color: var(--bs-body-bg);
+}
+
+.ai-prompt-btn {
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.ai-prompt-btn:hover {
+  background-color: var(--bs-primary);
+  color: white;
+  border-color: var(--bs-primary);
+}
+
+.ai-response-container {
+  min-height: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+  border-color: rgba(13, 110, 253, 0.2) !important;
+}
+
+[data-bs-theme="dark"] .ai-response-container {
+  background-color: var(--bs-tertiary-bg) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.ai-response-content pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.6;
+}

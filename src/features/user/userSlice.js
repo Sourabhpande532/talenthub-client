@@ -17,8 +17,6 @@ export const fetchDashboard = createAsyncThunk(
   },
 );
 
-
-
 // Add Bookmark (Applicant)
 export const addBookmark = createAsyncThunk(
   "user/addBookmark",
@@ -62,6 +60,18 @@ const userSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Dashboard
+      .addCase(fetchDashboard.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchDashboard.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.dashboardData = action.payload;
+      })
+      .addCase(fetchDashboard.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
       // Bookmarks
       .addCase(addBookmark.fulfilled, (state) => {
         toast.success("Job bookmarked");
