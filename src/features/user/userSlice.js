@@ -32,6 +32,36 @@ export const addBookmark = createAsyncThunk(
   },
 );
 
+// Fetch Applied Jobs (Applicant specific)
+export const fetchAppliedJobs = createAsyncThunk(
+  "user/fetchAppliedJobs",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await API_URL.get("/api/applications/me");
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch applied jobs",
+      );
+    }
+  },
+);
+
+// Update Profile
+export const updateProfile = createAsyncThunk(
+  "user/updateProfile",
+  async (profileData, { rejectWithValue }) => {
+    try {
+      const response = await API_URL.put("/api/users/profile", profileData);
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update profile",
+      );
+    }
+  },
+);
+
 // Remove Bookmark (Applicant)
 export const removeBookmark = createAsyncThunk(
   "user/removeBookmark",
@@ -71,6 +101,17 @@ const userSlice = createSlice({
       .addCase(fetchDashboard.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
+      })
+      // Applied Jobs
+      .addCase(fetchAppliedJobs.fulfilled, (state, action) => {
+        state.appliedJobs = action.payload;
+      })
+      // Update Profile
+      .addCase(updateProfile.fulfilled, (state) => {
+        toast.success("Profile updated successfully");
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        toast.error(action.payload);
       })
       // Bookmarks
       .addCase(addBookmark.fulfilled, (state) => {
