@@ -66,7 +66,7 @@ export const JobDetailsSidePanel = ({ id }) => {
     <div className='col-lg-4'>
       {/* Apply Card */}
       <div
-        className='card border-0 shadow-sm rounded-4 mb-4 position-sticky'
+        className='card border-0 shadow-sm rounded-4 mb-4 top-0'
         style={{ top: "100px" }}>
         <div className='card-body p-4 text-center'>
           <h5 className='fw-bold mb-1'>Interested in this job?</h5>
