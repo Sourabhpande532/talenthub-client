@@ -1,0 +1,18 @@
+.jobs-page {
+  padding-top: 2rem;
+}
+
+.form-check-input:checked {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+[data-bs-theme="dark"] .bg-light {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .form-select option {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+}

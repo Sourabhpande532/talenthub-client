@@ -21,7 +21,7 @@ const FeaturedJob = () => {
               Discover the latest opportunities added to TalentHub
             </p>
           </div>
-          <Link to='#' className='btn btn-outline-primary fw-medium'>
+          <Link to='/jobs' className='btn btn-outline-primary fw-medium'>
             View All Jobs <i className='bi bi-arrow-right ms-1'></i>
           </Link>
         </div>
