@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import "./Dashboard.css";
-import { fetchDashboard } from "../../features/user/userSlice";
+import {
+  fetchDashboard,
+  fetchAppliedJobs,
+} from "../../features/user/userSlice";
 import { updateApplicationStatus } from "../../features/application/applicationSlice";
 import ApplicantCard from "../../components/ApplicantCard/ApplicantCard";
 import AIAssistantModal from "../../components/AIAssistantModal/AIAssistantModal";
@@ -11,14 +14,19 @@ import AIAssistantModal from "../../components/AIAssistantModal/AIAssistantModal
 function useDashboardStats() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { dashboardData, status } = useSelector((state) => state.user);
+  const { dashboardData, appliedJobs, status } = useSelector(
+    (state) => state.user,
+  );
 
   // Local state for recruiter to select a job for AI Assistant
   const [selectedJobIdForAI, setSelectedJobIdForAI] = useState(null);
 
   useEffect(() => {
     dispatch(fetchDashboard());
-  }, [dispatch]);
+    if (user?.role === "Applicant") {
+      dispatch(fetchAppliedJobs());
+    }
+  }, [dispatch, user?.role]);
 
   const handleStatusChange = (applicationId, newStatus) => {
     dispatch(
@@ -50,6 +58,7 @@ function useDashboardStats() {
   return {
     user,
     dashboardData,
+    appliedJobs,
     handleArchiveJob,
     handleStatusChange,
     selectedJobIdForAI,
@@ -57,11 +66,11 @@ function useDashboardStats() {
   };
 }
 
-
 const Dashboard = () => {
   const {
     user,
     dashboardData,
+    appliedJobs,
     handleArchiveJob,
     handleStatusChange,
     selectedJobIdForAI,
@@ -75,7 +84,7 @@ const Dashboard = () => {
 
     return (
       <div className='recruiter-dashboard'>
-        <div className='d-flex justify-content-between align-items-end mb-4'>
+        <div className='d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-end gap-3 mb-4'>
           <div>
             <h3 className='fw-bold mb-1'>Recruiter Dashboard</h3>
             <p className='text-muted mb-0'>
@@ -230,7 +239,7 @@ const Dashboard = () => {
 
     return (
       <div className='applicant-dashboard'>
-        <div className='d-flex justify-content-between align-items-end mb-4'>
+        <div className='d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-end gap-3 mb-4'>
           <div>
             <h3 className='fw-bold mb-1'>My Dashboard</h3>
             <p className='text-muted mb-0'>
@@ -281,6 +290,73 @@ const Dashboard = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* My Applications List */}
+        <div className='card border-0 shadow-sm rounded-4 mb-5'>
+          <div className='card-header bg-white border-0 pt-4 pb-0 px-4'>
+            <h5 className='fw-bold mb-0'>My Applications</h5>
+          </div>
+          <div className='card-body p-4'>
+            {appliedJobs && appliedJobs.length > 0 ? (
+              <div className='table-responsive border border-light-subtle rounded-3 shadow-sm'>
+                <table
+                  className='table table-hover align-middle mb-0'
+                  style={{ minWidth: "650px" }}>
+                  <thead className='table-light border-bottom text-secondary text-uppercase fs-7'>
+                    <tr>
+                      <th className='py-3 ps-4'>Job Title</th>{" "}
+                      {/* Added padding start (ps-4) for clean screen alignment */}
+                      <th className='py-3'>Company</th>
+                      <th className='py-3'>Applied On</th>
+                      <th className='py-3 pe-4'>Status</th>{" "}
+                      {/* Added padding end (pe-4) */}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {appliedJobs.map((app) => (
+                      <tr key={app._id} className='transition-all'>
+                        <td
+                          className='fw-semibold py-3 ps-4 text-truncate'
+                          style={{ maxWidth: "220px" }}>
+                          <Link
+                            to={`/jobs/${app.job?._id}`}
+                            className='text-decoration-none link-primary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover'>
+                            {app.job?.title || "Unknown"}
+                          </Link>
+                        </td>
+                        <td
+                          className='text-muted py-3 text-truncate'
+                          style={{ maxWidth: "180px" }}>
+                          {app.job?.companyName ||
+                            (app.job?.recruiter &&
+                              app.job.recruiter.companyName) ||
+                            "Company"}
+                        </td>
+                        <td className='text-secondary py-3'>
+                          {new Date(app.createdAt).toLocaleDateString(
+                            undefined,
+                            { year: "numeric", month: "short", day: "numeric" },
+                          )}
+                        </td>
+                        <td className='py-3 pe-4'>
+                          {/* Visual Upgrade: Kept your clean dynamic colors, but added fw-medium for readability */}
+                          <span
+                            className={`badge fw-semibold ${app.status === "Shortlisted" ? "bg-success" : app.status === "Rejected" ? "bg-danger" : "bg-primary"} bg-opacity-10 text-${app.status === "Shortlisted" ? "success" : app.status === "Rejected" ? "danger" : "primary"} px-3 py-2 rounded-pill`}>
+                            {app.status === "New" ? "Applied" : app.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className='text-center py-4 text-muted'>
+                <p className='mb-0'>You haven't applied to any jobs yet.</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Recent Activity */}

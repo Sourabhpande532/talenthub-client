@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,40 +25,6 @@ function useRegistration() {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("File size must be less than 5MB");
-      return;
-    }
-
-    const data = new FormData();
-    data.append("file", file);
-    data.append("upload_preset", "onn57svg");
-
-    try {
-      setUploading(true);
-      const res = await fetch(
-        "https://api.cloudinary.com/v1_1/djqf9vhkq/image/upload",
-        {
-          method: "POST",
-          body: data,
-        },
-      );
-      const cloudData = await res.json();
-      if (!res.ok) throw new Error(cloudData.error?.message || "Upload failed");
-
-      setFormData({ ...formData, resume: cloudData.secure_url });
-      toast.success("File uploaded successfully");
-    } catch (error) {
-      toast.error(error.message || "File upload failed");
-    } finally {
-      setUploading(false);
-    }
-  };
   return {
     formData,
     uploading,
@@ -65,10 +32,8 @@ function useRegistration() {
     dispatch,
     navigate,
     handleChange,
-    handleFileUpload,
   };
 }
-
 export const RightSideUserForm = ({ role, setRole }) => {
   const {
     formData,
@@ -77,7 +42,6 @@ export const RightSideUserForm = ({ role, setRole }) => {
     dispatch,
     navigate,
     handleChange,
-    handleFileUpload,
   } = useRegistration();
 
   const handleSubmit = async (e) => {
@@ -250,25 +214,15 @@ export const RightSideUserForm = ({ role, setRole }) => {
 
               <div className='col-12'>
                 <label className='form-label fw-medium small text-muted'>
-                  Upload Resume (Optional)
+                  Resume URL (Optional)
                 </label>
-                <div className='d-flex align-items-center gap-3'>
-                  <input
-                    type='file'
-                    className='form-control bg-body-tertiary text-body'
-                    accept='.pdf,.doc,.docx'
-                    onChange={handleFileUpload}
-                    disabled={uploading}
-                  />
-                  {uploading && (
-                    <div className='spinner-border spinner-border-sm text-primary'></div>
-                  )}
-                </div>
-                {formData.resume && (
-                  <small className='text-success'>
-                    <i className='bi bi-check-circle me-1'></i>Resume uploaded
-                  </small>
-                )}
+                <input
+                  type='url'
+                  name='resume'
+                  className='form-control bg-body-tertiary text-body'
+                  placeholder='Paste Google Drive or Portfolio link'
+                  onChange={handleChange}
+                />
               </div>
             </>
           ) : (
