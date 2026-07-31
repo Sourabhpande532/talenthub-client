@@ -34,6 +34,25 @@ export const askHiringAssistant = createAsyncThunk(
   },
 );
 
+// Generate Job Description
+export const generateJobDescription = createAsyncThunk(
+  "ai/generateJobDescription",
+  async ({ title, skills, experience }, { rejectWithValue }) => {
+    try {
+      const response = await API_URL.post("/api/ai/generate-job-description", {
+        title,
+        skills,
+        experience,
+      });
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to generate description",
+      );
+    }
+  },
+);
+
 const initialState = {
   interviewPrepResult: null,
   hiringAssistantResult: null,
@@ -79,6 +98,19 @@ const aiSlice = createSlice({
         state.hiringAssistantResult = action.payload;
       })
       .addCase(askHiringAssistant.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      // Job Description Generator
+      .addCase(generateJobDescription.pending, (state) => {
+        state.status = "loading";
+        state.jobDescriptionResult = null;
+      })
+      .addCase(generateJobDescription.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.jobDescriptionResult = action.payload;
+      })
+      .addCase(generateJobDescription.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
       });

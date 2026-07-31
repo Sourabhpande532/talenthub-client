@@ -1,0 +1,22 @@
+.create-job-page {
+  padding-top: 2rem;
+}
+
+textarea.form-control {
+  resize: vertical;
+}
+
+.ai-banner {
+  transition: all 0.3s ease;
+}
+
+[data-bs-theme="dark"] .ai-banner {
+  background-color: rgba(13, 110, 253, 0.1) !important;
+  border-color: rgba(13, 110, 253, 0.2) !important;
+}
+
+[data-bs-theme="dark"] .bg-light {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: var(--bs-body-color);
+  border-color: rgba(255, 255, 255, 0.1);
+}

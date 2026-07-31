@@ -118,27 +118,27 @@ export const JobDetailsSidePanel = ({ id }) => {
             </span>
           </div>
         </div>
-        <hr className='border-bottom'/>
-        {/* Recruiter Details Card */}
-        <div className='card border-0 shadow-sm rounded-4'>
-          <div className='card-body p-4'>
-            <h6 className='fw-bold mb-4'>About the Recruiter</h6>
-            <div className='d-flex align-items-center gap-3 mb-3'>
-              <div
-                className='avatar-circle bg-primary text-white fs-5'
-                style={{ width: "48px", height: "48px" }}>
-                {currentJob?.recruiter?.name
-                  ? currentJob.recruiter.name.charAt(0).toUpperCase()
-                  : "R"}
-              </div>
-              <div>
-                <h6 className='mb-0 fw-bold'>
-                  {currentJob?.recruiter?.name || "Hiring Manager"}
-                </h6>
-                <small className='text-muted'>
-                  {currentJob?.recruiter?.email}
-                </small>
-              </div>
+      </div>
+
+      {/* Recruiter Details Card */}
+      <div className='card border-0 shadow-sm rounded-4'>
+        <div className='card-body p-4'>
+          <h6 className='fw-bold mb-4'>About the Recruiter</h6>
+          <div className='d-flex align-items-center gap-3 mb-3'>
+            <div
+              className='avatar-circle bg-primary text-white fs-5'
+              style={{ width: "48px", height: "48px" }}>
+              {currentJob?.recruiter?.name
+                ? currentJob.recruiter.name.charAt(0).toUpperCase()
+                : "R"}
+            </div>
+            <div>
+              <h6 className='mb-0 fw-bold'>
+                {currentJob?.recruiter?.name || "Hiring Manager"}
+              </h6>
+              <small className='text-muted'>
+                {currentJob?.recruiter?.email}
+              </small>
             </div>
           </div>
         </div>

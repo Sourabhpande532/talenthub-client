@@ -32,6 +32,21 @@ export const fetchJobById = createAsyncThunk(
   },
 );
 
+// Create a new job (Recruiter)
+export const createJob = createAsyncThunk(
+  "jobs/createJob",
+  async (jobData, { rejectWithValue }) => {
+    try {
+      const response = await API_URL.post("/api/jobs", jobData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to create job",
+      );
+    }
+  },
+);
+
 const initialState = {
   jobsList: [],
   currentJob: null,
@@ -76,6 +91,18 @@ const jobSlice = createSlice({
       .addCase(fetchJobById.rejected, (state, action) => {
         state.currentJobStatus = "failed";
         state.error = action.payload;
+        toast.error(action.payload);
+      })
+      // Create Job
+      .addCase(createJob.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(createJob.fulfilled, (state) => {
+        state.status = "succeeded";
+        toast.success("Job created successfully!");
+      })
+      .addCase(createJob.rejected, (state, action) => {
+        state.status = "failed";
         toast.error(action.payload);
       });
   },
