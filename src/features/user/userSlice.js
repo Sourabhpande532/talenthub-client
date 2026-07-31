@@ -2,6 +2,23 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API_URL from "../../api/axiosHelper";
 import toast from "react-hot-toast";
 
+// Fetch Dashboard (Automatically gets Applicant or Recruiter dashboard based on token backend)
+export const fetchDashboard = createAsyncThunk(
+  "user/fetchDashboard",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await API_URL.get("/api/users/dashboard");
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch dashboard",
+      );
+    }
+  },
+);
+
+
+
 // Add Bookmark (Applicant)
 export const addBookmark = createAsyncThunk(
   "user/addBookmark",

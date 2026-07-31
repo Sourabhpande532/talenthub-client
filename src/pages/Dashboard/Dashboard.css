@@ -1,0 +1,31 @@
+.dashboard-page {
+  padding-top: 2rem;
+}
+
+.stats-icon-wrapper {
+  width: 56px;
+  height: 56px;
+}
+
+.activity-timeline {
+  border-left: 2px solid var(--bs-border-color);
+}
+
+.activity-item:last-child {
+  padding-bottom: 0 !important;
+}
+
+.activity-dot {
+  width: 14px;
+  height: 14px;
+  left: -22px; /* width + padding offset */
+  top: 4px;
+}
+
+[data-bs-theme="dark"] .activity-dot {
+  border-color: var(--bs-tertiary-bg) !important;
+}
+
+[data-bs-theme="dark"] .bg-white {
+  background-color: var(--bs-tertiary-bg) !important;
+}

@@ -35,6 +35,20 @@ export const withdrawApplication = createAsyncThunk(
   },
 );
 
+export const fetchApplicantsForJob = createAsyncThunk(
+  "applications/fetchApplicantsForJob",
+  async (jobId, { rejectWithValue }) => {
+    try {
+      const response = await API_URL.get(`/api/applications/job/${jobId}`);
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch applicants",
+      );
+    }
+  },
+);
+
 const initialState = {
   applicantsList: [],
   status: "idle",
