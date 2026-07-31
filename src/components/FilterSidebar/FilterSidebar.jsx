@@ -6,8 +6,8 @@ export const FilterSidebar = () => {
   return (
     <div className='col-lg-3'>
       <div
-        className='card border-0 shadow-sm rounded-4 position-sticky'
-        style={{ top: "100px" }}>
+        className='card border-0 shadow-sm rounded-4 position-sticky mb-5 pb-2'
+        style={{ top: "100px", minHeight: "80vh" }}>
         <div className='card-body p-4'>
           <div className='d-flex justify-content-between align-items-center mb-4'>
             <h5 className='fw-bold mb-0'>Filters</h5>
@@ -64,7 +64,7 @@ export const FilterSidebar = () => {
             </div>
           </div>
 
-          <div className='mb-4'>
+          <div className='mb-5 pb-5'>
             <h6 className='fw-bold mb-3 small text-muted text-uppercase'>
               Salary Range
             </h6>

@@ -6,7 +6,7 @@ import { logout } from "../../features/auth/authSlice";
 
 const Navbar = () => {
   const { token, user } = useSelector((state) => state.auth);
-  
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -34,7 +34,7 @@ const Navbar = () => {
 
           <div className='collapse navbar-collapse' id='navContent'>
             {/* Middle Search Bar - Visible only on large screens if needed, otherwise links */}
-            <ul className='navbar-nav me-auto mb-2 mb-lg-0 ms-4'>
+            <ul className='navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4'>
               <li className='nav-item'>
                 <Link to='/jobs' className='nav-link fw-medium'>
                   Find Jobs
@@ -42,7 +42,7 @@ const Navbar = () => {
               </li>
             </ul>
 
-            <div className='d-flex align-items-center gap-3'>
+            <div className='d-flex align-items-center gap-3 mt-3 mt-lg-0 pb-3 pb-lg-0'>
               {token ? (
                 <div className='dropdown'>
                   <button
