@@ -1,8 +1,10 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
-import "./Profile.css";
+import {setUser} from "../../features/auth/authSlice"
 import { updateProfile } from "../../features/user/userSlice";
+import "./Profile.css";
 
 const Profile = () => {
   const { user } = useSelector((state) => state.auth);
@@ -43,53 +45,18 @@ const Profile = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
-  const handleFileUpload = async (e, type) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const data = new FormData();
-    data.append("file", file);
-    data.append("upload_preset", "onn57svg");
-
-    try {
-      setUploading(true);
-      const res = await fetch(
-        "https://api.cloudinary.com/v1_1/djqf9vhkq/image/upload",
-        {
-          method: "POST",
-          body: data,
-        },
-      );
-      const cloudData = await res.json();
-      if (!res.ok) throw new Error(cloudData.error?.message || "Upload failed");
-
-      if (type === "photo" || type === "companyLogo") {
-        setFormData((prev) => ({ ...prev, [type]: cloudData.secure_url }));
-      } else {
-        setFormData((prev) => ({ ...prev, resume: cloudData.secure_url }));
-      }
-      toast.success("File uploaded successfully");
-    } catch (error) {
-      toast.error(error.message || "File upload failed");
-    } finally {
-      setUploading(false);
-    }
-  };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = { ...formData };
     if (user.role === "Applicant") {
-      payload.skills = formData.skills
-        .split(",")
-        .map((s) => s.trim())
-        .filter((s) => s);
+      payload.skills = formData.skills.split(",").map(s => s.trim()).filter(s => s);
     }
 
     const res = await dispatch(updateProfile(payload));
     if (updateProfile.fulfilled.match(res)) {
+      dispatch(setUser(res.payload));
       setIsEditing(false);
     }
   };
@@ -109,279 +76,146 @@ const Profile = () => {
   const strength = getProfileStrength();
 
   return (
-    <div className='profile-page bg-body-tertiary min-vh-100 py-4'>
-      <div className='container'>
-        <div className='row g-4'>
+    <div className="profile-page bg-body-tertiary min-vh-100 py-4">
+      <div className="container">
+        <div className="row g-4">
+          
           {!user ? (
-            <div className='col-12 text-center py-5'>
-              <i className='bi bi-exclamation-circle text-warning fs-1 mb-3 d-block'></i>
+            <div className="col-12 text-center py-5">
+              <i className="bi bi-exclamation-circle text-warning fs-1 mb-3 d-block"></i>
               <h4>Profile Data Missing</h4>
-              <p className='text-muted'>
-                Your session data seems to be outdated. Please log out and log
-                back in to refresh your profile.
-              </p>
+              <p className="text-muted">Your session data seems to be outdated. Please log out and log back in to refresh your profile.</p>
             </div>
           ) : (
             <>
               {/* Sidebar Info Card */}
-              <div className='col-lg-4'>
-                <div className='card border-0 shadow-sm rounded-4 mb-4'>
-                  <div className='card-body p-4 text-center'>
-                    <div className='profile-avatar-large bg-primary text-white mx-auto d-flex align-items-center justify-content-center fw-bold rounded-circle mb-3'>
-                      {user?.name?.charAt(0).toUpperCase()}
-                    </div>
-                    <h4 className='fw-bold mb-1'>{user?.name}</h4>
-                    <p className='text-muted mb-3'>{user?.email}</p>
-                    <span className='badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2 fw-medium'>
-                      {user?.role}
-                    </span>
+              <div className="col-lg-4">
+            <div className="card border-0 shadow-sm rounded-4 mb-4">
+              <div className="card-body p-4 text-center">
+                <div className="profile-avatar-large bg-primary text-white mx-auto d-flex align-items-center justify-content-center fw-bold rounded-circle mb-3">
+                  {user?.name?.charAt(0).toUpperCase()}
+                </div>
+                <h4 className="fw-bold mb-1">{user?.name}</h4>
+                <p className="text-muted mb-3">{user?.email}</p>
+                <span className="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2 fw-medium">
+                  {user?.role}
+                </span>
 
-                    {user?.role === "Applicant" && (
-                      <div className='mt-4 pt-4 border-top text-start'>
-                        <div className='d-flex justify-content-between mb-2'>
-                          <span className='fw-medium'>Profile Strength</span>
-                          <span className='fw-bold text-primary'>
-                            {strength}%
-                          </span>
-                        </div>
-                        <div className='progress' style={{ height: "8px" }}>
-                          <div
-                            className={`progress-bar ${strength === 100 ? "bg-success" : "bg-primary"}`}
-                            role='progressbar'
-                            style={{ width: `${strength}%` }}></div>
-                        </div>
-                        <ul className='list-unstyled mt-3 small text-muted'>
-                          <li>
-                            <i
-                              className={`bi ${user?.bio ? "bi-check-circle-fill text-success" : "bi-circle"} me-2`}></i>{" "}
-                            Add Bio
-                          </li>
-                          <li>
-                            <i
-                              className={`bi ${user?.skills?.length > 0 ? "bi-check-circle-fill text-success" : "bi-circle"} me-2`}></i>{" "}
-                            Add Skills
-                          </li>
-                          <li>
-                            <i
-                              className={`bi ${user?.experience ? "bi-check-circle-fill text-success" : "bi-circle"} me-2`}></i>{" "}
-                            Add Experience
-                          </li>
-                          <li>
-                            <i
-                              className={`bi ${user?.resume ? "bi-check-circle-fill text-success" : "bi-circle"} me-2`}></i>{" "}
-                            Upload Resume
-                          </li>
-                        </ul>
-                      </div>
-                    )}
+                {user?.role === "Applicant" && (
+                  <div className="mt-4 pt-4 border-top text-start">
+                    <div className="d-flex justify-content-between mb-2">
+                      <span className="fw-medium">Profile Strength</span>
+                      <span className="fw-bold text-primary">{strength}%</span>
+                    </div>
+                    <div className="progress" style={{ height: "8px" }}>
+                      <div className={`progress-bar ${strength === 100 ? "bg-success" : "bg-primary"}`} role="progressbar" style={{ width: `${strength}%` }}></div>
+                    </div>
+                    <ul className="list-unstyled mt-3 small text-muted">
+                      <li><i className={`bi ${user?.bio ? "bi-check-circle-fill text-success" : "bi-circle"} me-2`}></i> Add Bio</li>
+                      <li><i className={`bi ${user?.skills?.length > 0 ? "bi-check-circle-fill text-success" : "bi-circle"} me-2`}></i> Add Skills</li>
+                      <li><i className={`bi ${user?.experience ? "bi-check-circle-fill text-success" : "bi-circle"} me-2`}></i> Add Experience</li>
+                      <li><i className={`bi ${user?.resume ? "bi-check-circle-fill text-success" : "bi-circle"} me-2`}></i> Upload Resume</li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {user?.role === "Applicant" && formData.resume && !isEditing && (
+              <div className="card border-0 shadow-sm rounded-4">
+                <div className="card-body p-4">
+                  <h6 className="fw-bold mb-3">Resume</h6>
+                  <div className="d-flex align-items-center justify-content-between p-3 bg-body-tertiary text-body rounded-3 border">
+                    <div className="d-flex align-items-center gap-2">
+                      <i className="bi bi-link-45deg fs-4 text-primary"></i>
+                      <span className="fw-medium">Resume Link</span>
+                    </div>
+                    <a href={formData.resume} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-primary rounded-pill">
+                      View
+                    </a>
                   </div>
                 </div>
+              </div>
+            )}
+          </div>
 
-                {user?.role === "Applicant" &&
-                  formData.resume &&
-                  !isEditing && (
-                    <div className='card border-0 shadow-sm rounded-4'>
-                      <div className='card-body p-4'>
-                        <h6 className='fw-bold mb-3'>Resume</h6>
-                        <div className='d-flex align-items-center justify-content-between p-3 bg-body-tertiary text-body rounded-3 border'>
-                          <div className='d-flex align-items-center gap-2'>
-                            <i className='bi bi-file-earmark-pdf fs-4 text-danger'></i>
-                            <span className='fw-medium'>My_Resume.pdf</span>
-                          </div>
-                          <a
-                            href={formData.resume}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            className='btn btn-sm btn-outline-primary rounded-pill'>
-                            View
-                          </a>
+          {/* Main Form/Details Card */}
+          <div className="col-lg-8">
+            <div className="card border-0 shadow-sm rounded-4">
+              <div className="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 px-md-5 d-flex justify-content-between align-items-center">
+                <h4 className="fw-bold mb-0">Profile Information</h4>
+                {!isEditing && (
+                  <button className="btn btn-outline-primary btn-sm rounded-pill px-4 fw-medium" onClick={() => setIsEditing(true)}>
+                    <i className="bi bi-pencil me-1"></i> Edit Profile
+                  </button>
+                )}
+              </div>
+              <div className="card-body p-4 p-md-5">
+                <form onSubmit={handleSubmit}>
+                  <div className="row g-4">
+                    <div className="col-md-6">
+                      <label className="form-label fw-bold small text-muted text-uppercase">Full Name</label>
+                      <input type="text" name="name" className="form-control bg-body-tertiary text-body py-2" value={formData.name} onChange={handleChange} disabled={!isEditing} required />
+                    </div>
+                    
+                    {user?.role === "Applicant" ? (
+                      <>
+                        <div className="col-12">
+                          <label className="form-label fw-bold small text-muted text-uppercase">Professional Bio</label>
+                          <textarea name="bio" className="form-control bg-body-tertiary text-body" rows="3" value={formData.bio} onChange={handleChange} disabled={!isEditing} placeholder="Tell us about yourself..."></textarea>
                         </div>
-                      </div>
+                        <div className="col-md-6">
+                          <label className="form-label fw-bold small text-muted text-uppercase">Experience</label>
+                          <input type="text" name="experience" className="form-control bg-body-tertiary text-body py-2" value={formData.experience} onChange={handleChange} disabled={!isEditing} placeholder="e.g. 3 years in MERN Stack" />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label fw-bold small text-muted text-uppercase">Education</label>
+                          <input type="text" name="education" className="form-control bg-body-tertiary text-body py-2" value={formData.education} onChange={handleChange} disabled={!isEditing} placeholder="e.g. B.Tech Computer Science" />
+                        </div>
+                        <div className="col-12">
+                          <label className="form-label fw-bold small text-muted text-uppercase">Skills</label>
+                          <input type="text" name="skills" className="form-control bg-body-tertiary text-body py-2" value={formData.skills} onChange={handleChange} disabled={!isEditing} placeholder="React, Node, Express, MongoDB" />
+                        </div>
+                        {isEditing && (
+                          <div className="col-12">
+                            <label className="form-label fw-bold small text-muted text-uppercase">Resume URL (Drive, Portfolio, etc.)</label>
+                            <input type="url" name="resume" className="form-control bg-body-tertiary text-body py-2" placeholder="https://..." value={formData.resume} onChange={handleChange} disabled={!isEditing} />
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <div className="col-12">
+                          <label className="form-label fw-bold small text-muted text-uppercase">Company Name</label>
+                          <input type="text" name="companyName" className="form-control bg-body-tertiary text-body py-2" value={formData.companyName} onChange={handleChange} disabled={!isEditing} />
+                        </div>
+                        <div className="col-12">
+                          <label className="form-label fw-bold small text-muted text-uppercase">Website</label>
+                          <input type="url" name="website" className="form-control bg-body-tertiary text-body py-2" value={formData.website} onChange={handleChange} disabled={!isEditing} placeholder="https://example.com" />
+                        </div>
+                        <div className="col-12">
+                          <label className="form-label fw-bold small text-muted text-uppercase">About Company</label>
+                          <textarea name="aboutCompany" className="form-control bg-body-tertiary text-body" rows="4" value={formData.aboutCompany} onChange={handleChange} disabled={!isEditing}></textarea>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {isEditing && (
+                    <div className="d-flex justify-content-end gap-3 mt-5">
+                      <button type="button" className="btn btn-outline-secondary rounded-pill px-4 fw-medium" onClick={() => setIsEditing(false)}>
+                        Cancel
+                      </button>
+                      <button type="submit" className="btn btn-primary rounded-pill px-5 fw-medium" disabled={status === "loading" || uploading}>
+                        {status === "loading" ? "Saving..." : "Save Changes"}
+                      </button>
                     </div>
                   )}
+                </form>
               </div>
+            </div>
+          </div>
 
-              {/* Main Form/Details Card */}
-              <div className='col-lg-8'>
-                <div className='card border-0 shadow-sm rounded-4'>
-                  <div className='card-header bg-white border-bottom-0 pt-4 pb-0 px-4 px-md-5 d-flex justify-content-between align-items-center'>
-                    <h4 className='fw-bold mb-0'>Profile Information</h4>
-                    {!isEditing && (
-                      <button
-                        className='btn btn-outline-primary btn-sm rounded-pill px-4 fw-medium'
-                        onClick={() => setIsEditing(true)}>
-                        <i className='bi bi-pencil me-1'></i> Edit Profile
-                      </button>
-                    )}
-                  </div>
-                  <div className='card-body p-4 p-md-5'>
-                    <form onSubmit={handleSubmit}>
-                      <div className='row g-4'>
-                        <div className='col-md-6'>
-                          <label className='form-label fw-bold small text-muted text-uppercase'>
-                            Full Name
-                          </label>
-                          <input
-                            type='text'
-                            name='name'
-                            className='form-control bg-body-tertiary text-body py-2'
-                            value={formData.name}
-                            onChange={handleChange}
-                            disabled={!isEditing}
-                            required
-                          />
-                        </div>
-
-                        {user?.role === "Applicant" ? (
-                          <>
-                            <div className='col-12'>
-                              <label className='form-label fw-bold small text-muted text-uppercase'>
-                                Professional Bio
-                              </label>
-                              <textarea
-                                name='bio'
-                                className='form-control bg-body-tertiary text-body'
-                                rows='3'
-                                value={formData.bio}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                                placeholder='Tell us about yourself...'></textarea>
-                            </div>
-                            <div className='col-md-6'>
-                              <label className='form-label fw-bold small text-muted text-uppercase'>
-                                Experience
-                              </label>
-                              <input
-                                type='text'
-                                name='experience'
-                                className='form-control bg-body-tertiary text-body py-2'
-                                value={formData.experience}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                                placeholder='e.g. 3 years in MERN Stack'
-                              />
-                            </div>
-                            <div className='col-md-6'>
-                              <label className='form-label fw-bold small text-muted text-uppercase'>
-                                Education
-                              </label>
-                              <input
-                                type='text'
-                                name='education'
-                                className='form-control bg-body-tertiary text-body py-2'
-                                value={formData.education}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                                placeholder='e.g. B.Tech Computer Science'
-                              />
-                            </div>
-                            <div className='col-12'>
-                              <label className='form-label fw-bold small text-muted text-uppercase'>
-                                Skills
-                              </label>
-                              <input
-                                type='text'
-                                name='skills'
-                                className='form-control bg-body-tertiary text-body py-2'
-                                value={formData.skills}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                                placeholder='React, Node, Express, MongoDB'
-                              />
-                            </div>
-                            {isEditing && (
-                              <div className='col-12'>
-                                <label className='form-label fw-bold small text-muted text-uppercase'>
-                                  Update Resume (Cloudinary)
-                                </label>
-                                <div className='d-flex align-items-center gap-3'>
-                                  <input
-                                    type='file'
-                                    className='form-control bg-body-tertiary text-body py-2'
-                                    accept='.pdf,.doc,.docx'
-                                    onChange={handleFileUpload}
-                                    disabled={uploading}
-                                  />
-                                  {uploading && (
-                                    <div className='spinner-border text-primary spinner-border-sm'></div>
-                                  )}
-                                </div>
-                                {formData.resume && (
-                                  <small className='text-success mt-1 d-block'>
-                                    <i className='bi bi-check-circle me-1'></i>
-                                    Resume URL saved. Press Save Changes.
-                                  </small>
-                                )}
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            <div className='col-12'>
-                              <label className='form-label fw-bold small text-muted text-uppercase'>
-                                Company Name
-                              </label>
-                              <input
-                                type='text'
-                                name='companyName'
-                                className='form-control bg-body-tertiary text-body py-2'
-                                value={formData.companyName}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                              />
-                            </div>
-                            <div className='col-12'>
-                              <label className='form-label fw-bold small text-muted text-uppercase'>
-                                Website
-                              </label>
-                              <input
-                                type='url'
-                                name='website'
-                                className='form-control bg-body-tertiary text-body py-2'
-                                value={formData.website}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                                placeholder='https://example.com'
-                              />
-                            </div>
-                            <div className='col-12'>
-                              <label className='form-label fw-bold small text-muted text-uppercase'>
-                                About Company
-                              </label>
-                              <textarea
-                                name='aboutCompany'
-                                className='form-control bg-body-tertiary text-body'
-                                rows='4'
-                                value={formData.aboutCompany}
-                                onChange={handleChange}
-                                disabled={!isEditing}></textarea>
-                            </div>
-                          </>
-                        )}
-                      </div>
-
-                      {isEditing && (
-                        <div className='d-flex justify-content-end gap-3 mt-5'>
-                          <button
-                            type='button'
-                            className='btn btn-outline-secondary rounded-pill px-4 fw-medium'
-                            onClick={() => setIsEditing(false)}>
-                            Cancel
-                          </button>
-                          <button
-                            type='submit'
-                            className='btn btn-primary rounded-pill px-5 fw-medium'
-                            disabled={status === "loading" || uploading}>
-                            {status === "loading"
-                              ? "Saving..."
-                              : "Save Changes"}
-                          </button>
-                        </div>
-                      )}
-                    </form>
-                  </div>
-                </div>
-              </div>
             </>
           )}
         </div>
@@ -389,5 +223,6 @@ const Profile = () => {
     </div>
   );
 };
+
 
 export default Profile;

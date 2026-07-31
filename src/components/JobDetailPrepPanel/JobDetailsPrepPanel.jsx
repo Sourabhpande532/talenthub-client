@@ -86,7 +86,7 @@ export const JobDetailsPrepPanel = ({ id }) => {
       </div>
 
       {/* AI Interview Prep Section (Applicant Only) */}
-      {user?.role !== "Recruiter" && (
+      {user?.role === "Applicant"  && (
         <div className='card border-0 shadow-sm rounded-4 border-top border-primary border-4 mt-4 overflow-hidden'>
           <div className='card-header bg-white border-0 pt-4 pb-0 px-4 px-md-5 d-flex justify-content-between align-items-center'>
             <h5 className='fw-bold mb-0 text-primary'>
