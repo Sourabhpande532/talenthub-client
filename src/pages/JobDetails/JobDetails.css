@@ -1,0 +1,22 @@
+.job-details-page {
+    padding-top: 2rem;
+}
+
+.company-logo {
+    width: 80px;
+    height: 80px;
+}
+
+.ai-response {
+    border-color: rgba(13, 110, 253, 0.2) !important;
+}
+
+[data-bs-theme="dark"] .ai-response {
+    background-color: var(--bs-tertiary-bg) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-bs-theme="dark"] .bg-light {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: var(--bs-body-color);
+}

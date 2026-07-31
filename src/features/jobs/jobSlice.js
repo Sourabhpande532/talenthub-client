@@ -17,6 +17,21 @@ export const fetchJobs = createAsyncThunk(
   },
 );
 
+// Fetch a single job details
+export const fetchJobById = createAsyncThunk(
+  "jobs/fetchJobById",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await API_URL.get(`/api/jobs/${id}`);
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch job details",
+      );
+    }
+  },
+);
+
 const initialState = {
   jobsList: [],
   currentJob: null,
@@ -46,6 +61,21 @@ const jobSlice = createSlice({
       })
       .addCase(fetchJobs.rejected, (state, action) => {
         state.status = "failed";
+        state.error = action.payload;
+        toast.error(action.payload);
+      })
+      // Fetch Job By ID
+      .addCase(fetchJobById.pending, (state) => {
+        state.currentJobStatus = "loading";
+      })
+      .addCase(fetchJobById.fulfilled, (state, action) => {
+        console.log("details:", action);
+        state.currentJobStatus = "succeeded";
+        state.currentJob = action.payload.job;
+        state.similarJobs = action.payload.similarJobs || [];
+      })
+      .addCase(fetchJobById.rejected, (state, action) => {
+        state.currentJobStatus = "failed";
         state.error = action.payload;
         toast.error(action.payload);
       });
