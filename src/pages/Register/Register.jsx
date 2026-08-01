@@ -12,7 +12,7 @@ const Register = () => {
           {/* Left Side Info */}
           <LeftSideUserInfo role={role} setRole={setRole} />
           {/* Right Side Form */}
-          <RightSideUserForm role={role} setRole={role} />
+          <RightSideUserForm role={role} setRole={setRole} />
         </div>
       </div>
     </div>
