@@ -26,10 +26,10 @@ npm run start  # or `npm run dev` with nodemon
 
 ## Technologies
 
-- Reat
+- React
 - Redux Toolkit (RTK)
-- Node Js
-- Express Js
+- Node.js
+- Express.js
 - MongoDB & Mongoose
 - JSON Web Tokens (JWT)
 - OpenRouter AI (OpenAI SDK)
