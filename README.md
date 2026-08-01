@@ -74,6 +74,11 @@ Watch a walkthrough (5-7 minutes) of all major features of this app: <br>
 - Robust JWT authentication and role-based middleware (`isRecruiter`, `isApplicant`) protecting all endpoints.
 
 ---
+## Planning Project 
+
+![](./src/assets/Planning.png)
+
+---
 
 ## API Reference
 
