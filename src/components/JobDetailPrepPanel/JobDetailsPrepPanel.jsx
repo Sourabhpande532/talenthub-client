@@ -6,6 +6,15 @@ import {
 import { useEffect } from "react";
 import { clearCurrentJob, fetchJobById } from "../../features/jobs/jobSlice";
 
+const formatExperience = (exp) => {
+  if (!exp) return "";
+  if (exp.toLowerCase() === "fresher") return "Fresher";
+  if (exp.toLowerCase().includes("yr") || exp.toLowerCase().includes("year")) {
+    return exp;
+  }
+  return `${exp} Yrs`;
+};
+
 export const JobDetailsPrepPanel = ({ id }) => {
   const dispatch = useDispatch();
   const { currentJob, currentJobStatus } = useSelector((state) => state.jobs);
@@ -63,8 +72,8 @@ export const JobDetailsPrepPanel = ({ id }) => {
               LPA
             </span>
             <span className='badge bg-secondary-subtle text-secondary border px-3 py-2 rounded-pill fs-6 fw-normal'>
-              <i className='bi bi-briefcase me-1'></i> {currentJob.experience}{" "}
-              Yrs
+              <i className='bi bi-briefcase me-1'></i>{" "}
+              {formatExperience(currentJob.experience)}
             </span>
             <span className='badge bg-secondary-subtle text-secondary border px-3 py-2 rounded-pill fs-6 fw-normal'>
               <i className='bi bi-geo-alt me-1'></i> {currentJob.location}
