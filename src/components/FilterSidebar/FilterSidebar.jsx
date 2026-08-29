@@ -64,6 +64,23 @@ export const FilterSidebar = () => {
             </div>
           </div>
 
+          <div className='mb-4'>
+            <h6 className='fw-bold mb-3 small text-muted text-uppercase'>
+              Employment Type
+            </h6>
+            <select
+              name='employmentType'
+              className='form-select bg-body-tertiary text-body border-secondary border-opacity-25'
+              value={filters.employmentType}
+              onChange={handleFilterChange}>
+              <option value=''>All Employment Types</option>
+              <option value='Full-time'>Full Time</option>
+              <option value='Part-time'>Part Time</option>
+              <option value='Internship'>Internship</option>
+              <option value='Contract'>Contract</option>
+            </select>
+          </div>
+
           <div className='mb-5 pb-5'>
             <h6 className='fw-bold mb-3 small text-muted text-uppercase'>
               Salary Range

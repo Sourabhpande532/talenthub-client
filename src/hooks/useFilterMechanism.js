@@ -14,16 +14,31 @@ export function useFilterMechanism() {
     search: searchParams.get("search") || "",
     location: searchParams.get("location") || "",
     experience: searchParams.get("experience") || "",
+    employmentType: searchParams.get("employmentType") || "",
     salary: searchParams.get("salary") || "",
     sort: searchParams.get("sort") || "latest",
   });
-  // Debounce search function
+
+  // Debounce search/filter function to prevent API calls on every keystroke
   useEffect(() => {
     const timer = setTimeout(() => {
       updateURLParams(filters);
-    }, 500); // 500ms debounce
+    }, 400); // 400ms debounce
     return () => clearTimeout(timer);
-  }, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
+
+  // Sync state if URL params change externally
+  useEffect(() => {
+    setFilters({
+      search: searchParams.get("search") || "",
+      location: searchParams.get("location") || "",
+      experience: searchParams.get("experience") || "",
+      employmentType: searchParams.get("employmentType") || "",
+      salary: searchParams.get("salary") || "",
+      sort: searchParams.get("sort") || "latest",
+    });
+  }, [searchParams]);
 
   // When URL changes, fetch data
   useEffect(() => {
@@ -39,9 +54,11 @@ export function useFilterMechanism() {
           params.append(key, newFilters[key]);
         }
       });
-      setSearchParams(params);
+      if (params.toString() !== searchParams.toString()) {
+        setSearchParams(params);
+      }
     },
-    [setSearchParams],
+    [searchParams, setSearchParams],
   );
 
   const handleFilterChange = (e) => {
@@ -54,11 +71,13 @@ export function useFilterMechanism() {
       search: "",
       location: "",
       experience: "",
+      employmentType: "",
       salary: "",
       sort: "latest",
     };
     setFilters(cleared);
     updateURLParams(cleared);
   };
+
   return { filters, handleFilterChange, handleClearFilters, jobsList, status };
 }
