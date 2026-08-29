@@ -1,5 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
-import { clearAIResults, generateInterviewPrep } from "../../features/ai/aiSlice";
+import {
+  clearAIResults,
+  generateInterviewPrep,
+} from "../../features/ai/aiSlice";
 import { useEffect } from "react";
 import { clearCurrentJob, fetchJobById } from "../../features/jobs/jobSlice";
 
@@ -33,21 +36,24 @@ export const JobDetailsPrepPanel = ({ id }) => {
   if (!currentJob) {
     return <div className='text-center py-5'>Job not found.</div>;
   }
+
+  const companyName =
+    currentJob.company ||
+    currentJob.companyName ||
+    currentJob.recruiter?.companyName ||
+    "Company";
+
   return (
     <div className='col-lg-8'>
       <div className='card border-0 shadow-sm rounded-4 mb-4'>
         <div className='card-body p-4 p-md-5'>
           <div className='d-flex gap-4 align-items-center mb-4'>
             <div className='company-logo bg-light rounded-4 d-flex justify-content-center align-items-center text-primary fw-bold display-6'>
-              {currentJob.companyName
-                ? currentJob.companyName.charAt(0).toUpperCase()
-                : "C"}
+              {companyName.charAt(0).toUpperCase()}
             </div>
             <div>
               <h2 className='fw-bold mb-1'>{currentJob.title}</h2>
-              <p className='text-muted fs-5 mb-0'>
-                {currentJob.companyName || "Acme Inc."}
-              </p>
+              <p className='text-muted fs-5 mb-0'>{companyName}</p>
             </div>
           </div>
 
@@ -86,7 +92,7 @@ export const JobDetailsPrepPanel = ({ id }) => {
       </div>
 
       {/* AI Interview Prep Section (Applicant Only) */}
-      {user?.role === "Applicant"  && (
+      {user?.role === "Applicant" && (
         <div className='card border-0 shadow-sm rounded-4 border-top border-primary border-4 mt-4 overflow-hidden'>
           <div className='card-header bg-white border-0 pt-4 pb-0 px-4 px-md-5 d-flex justify-content-between align-items-center'>
             <h5 className='fw-bold mb-0 text-primary'>
