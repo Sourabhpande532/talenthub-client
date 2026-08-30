@@ -57,6 +57,14 @@ function App() {
             </ProtectingRoutes>
           }
         />
+        <Route
+          path='/edit-job/:id'
+          element={
+            <ProtectingRoutes requiredRole='Recruiter'>
+              <CreateJob />
+            </ProtectingRoutes>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

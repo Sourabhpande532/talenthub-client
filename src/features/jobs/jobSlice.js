@@ -47,6 +47,21 @@ export const createJob = createAsyncThunk(
   },
 );
 
+// Update existing job (Recruiter)
+export const updateJob = createAsyncThunk(
+  "jobs/updateJob",
+  async ({ id, jobData }, { rejectWithValue }) => {
+    try {
+      const response = await API_URL.put(`/api/jobs/${id}`, jobData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update job",
+      );
+    }
+  },
+);
+
 const initialState = {
   jobsList: [],
   currentJob: null,
@@ -102,6 +117,18 @@ const jobSlice = createSlice({
         toast.success("Job created successfully!");
       })
       .addCase(createJob.rejected, (state, action) => {
+        state.status = "failed";
+        toast.error(action.payload);
+      })
+      // Update Job
+      .addCase(updateJob.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateJob.fulfilled, (state) => {
+        state.status = "succeeded";
+        toast.success("Job updated successfully!");
+      })
+      .addCase(updateJob.rejected, (state, action) => {
         state.status = "failed";
         toast.error(action.payload);
       });
