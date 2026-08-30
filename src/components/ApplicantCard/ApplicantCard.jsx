@@ -79,7 +79,7 @@ const ApplicantCard = ({ application, onStatusChange }) => {
           <div className="mt-3 pt-3 border-top d-flex flex-wrap gap-2">
             {applicant.skills.map((skill, index) => (
               <span key={index} className="badge bg-light text-secondary border fw-normal">
-                {skill}
+                {skill}{index < applicant.skills.length - 1 ? "," : ""}
               </span>
             ))}
           </div>
