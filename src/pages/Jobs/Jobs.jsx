@@ -1,6 +1,7 @@
 import { FilterSidebar } from "../../components/FilterSidebar/FilterSidebar";
 import JobCard from "../../components/JobCard/JobCard";
-import { useFilterMechanism } from "../../hooks/useFilterMechanism";
+import { useFilterMechanism } from '../../hooks/useFilterMechanism';
+import './Jobs.css';
 
 const Jobs = () => {
   const { filters, handleFilterChange, handleClearFilters, jobsList, status } =

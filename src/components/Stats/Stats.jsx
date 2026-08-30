@@ -5,7 +5,7 @@ const FeatureStats = () => {
       <div className='container py-4'>
         <div className='row g-4 text-center'>
           <div className='col-md-4'>
-            <div className='p-4 bg-light rounded-4 h-100'>
+            <div className='p-4 bg-light rounded-4 h-100 feature-stat-item'>
               <i className='bi bi-robot fs-1 text-primary mb-3'></i>
               <h4 className='fw-bold'>AI Interview Prep</h4>
               <p className='text-muted'>
@@ -15,7 +15,7 @@ const FeatureStats = () => {
             </div>
           </div>
           <div className='col-md-4'>
-            <div className='p-4 bg-light rounded-4 h-100'>
+            <div className='p-4 bg-light rounded-4 h-100 feature-stat-item'>
               <i className='bi bi-briefcase fs-1 text-primary mb-3'></i>
               <h4 className='fw-bold'>Top Companies</h4>
               <p className='text-muted'>
@@ -25,7 +25,7 @@ const FeatureStats = () => {
             </div>
           </div>
           <div className='col-md-4'>
-            <div className='p-4 bg-light rounded-4 h-100'>
+            <div className='p-4 bg-light rounded-4 h-100 feature-stat-item'>
               <i className='bi bi-chat-square-text fs-1 text-primary mb-3'></i>
               <h4 className='fw-bold'>AI Hiring Assistant</h4>
               <p className='text-muted'>

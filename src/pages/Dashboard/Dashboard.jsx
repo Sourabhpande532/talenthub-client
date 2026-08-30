@@ -12,7 +12,8 @@ import {
 } from "../../features/application/applicationSlice";
 import ApplicantCard from "../../components/ApplicantCard/ApplicantCard";
 import AIAssistantModal from "../../components/AIAssistantModal/AIAssistantModal";
-import { setUser } from "../../features/auth/authSlice";
+import { setUser } from '../../features/auth/authSlice';
+import './Dashboard.css';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -125,7 +126,7 @@ const Dashboard = () => {
             },
           ].map((stat, idx) => (
             <div key={idx} className='col-md-6 col-xl-3'>
-              <div className='card border-0 shadow-sm rounded-4 h-100'>
+              <div className='card border-0 shadow-sm rounded-4 h-100 stat-card'>
                 <div className='card-body p-4 d-flex align-items-center gap-4'>
                   <div
                     className={`stats-icon-wrapper bg-${stat.color}-subtle text-${stat.color} rounded-circle d-flex justify-content-center align-items-center`}>
@@ -182,7 +183,7 @@ const Dashboard = () => {
           {activeJobs.length > 0 ? (
             activeJobs.map((job) => (
               <div key={job._id} className='col-md-6'>
-                <div className='card border-0 shadow-sm rounded-4 h-100 p-3 d-flex flex-row justify-content-between align-items-center'>
+                <div className='card border-0 shadow-sm rounded-4 h-100 stat-card p-3 d-flex flex-row justify-content-between align-items-center'>
                   <div>
                     <h6 className='fw-bold mb-1'>{job.title}</h6>
                     <small className='text-muted'>
@@ -219,7 +220,7 @@ const Dashboard = () => {
             <div className='row g-3 mb-5'>
               {archivedJobs.map((job) => (
                 <div key={job._id} className='col-md-6'>
-                  <div className='card border-0 shadow-sm rounded-4 h-100 p-3 d-flex flex-row justify-content-between align-items-center bg-light opacity-75'>
+                  <div className='card border-0 shadow-sm rounded-4 h-100 stat-card p-3 d-flex flex-row justify-content-between align-items-center bg-light opacity-75'>
                     <div>
                       <h6 className='fw-bold mb-1'>{job.title}</h6>
                       <small className='text-muted'>
@@ -321,10 +322,10 @@ const Dashboard = () => {
             },
           ].map((stat, idx) => (
             <div key={idx} className='col-md-6 col-xl-3'>
-              <div className='card border-0 shadow-sm rounded-4 h-100'>
+              <div className='card border-0 shadow-sm rounded-4 h-100 stat-card'>
                 <div className='card-body p-4'>
                   <h6 className='text-muted mb-3'>{stat.label}</h6>
-                  <div className='d-flex justify-content-between align-items-end'>
+                  <div className='d-flex justify-content-between align-items-end dashboard-header-flex'>
                     <h2 className='fw-bold mb-0'>{stat.value}</h2>
                     <i
                       className={`bi ${stat.icon} fs-3 text-light-muted opacity-25`}></i>

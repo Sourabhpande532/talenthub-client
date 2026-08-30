@@ -17,3 +17,25 @@
 [data-bs-theme="dark"] .progress {
   background-color: var(--bs-tertiary-bg);
 }
+
+/* Profile Styling */
+.profile-page .avatar-circle {
+  width: 120px;
+  height: 120px;
+  font-size: 3rem !important;
+  box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2);
+  margin: 0 auto;
+}
+.profile-page .form-control, .profile-page .form-select {
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+.profile-page .form-control:focus {
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+@media (max-width: 768px) {
+  .profile-page .card-body {
+    padding: 1.5rem !important;
+  }
+}
+

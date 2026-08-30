@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { fetchJobs } from "../../features/jobs/jobSlice";
-import JobCard from "../JobCard/JobCard";
+import JobCard from '../JobCard/JobCard';
+import './FeaturedJob.css';
 
 const FeaturedJob = () => {
   const { jobsList, status } = useSelector((state) => state.jobs);
@@ -12,7 +13,7 @@ const FeaturedJob = () => {
   }, [dispatch]);
 
   return (
-    <section className='py-5 bg-body-tertiary'>
+    <section className='py-5 bg-body-tertiary featured-jobs-section'>
       <div className='container py-4'>
         <div className='d-flex justify-content-between align-items-end mb-4'>
           <div>

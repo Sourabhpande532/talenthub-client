@@ -16,3 +16,21 @@
   background-color: var(--bs-body-bg);
   color: var(--bs-body-color);
 }
+
+/* Custom Jobs Page styling */
+@media (max-width: 768px) {
+  .jobs-page .card-body {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .jobs-page .border-start {
+    border-left: none !important;
+    padding-left: 0 !important;
+    margin-top: 1rem;
+    justify-content: flex-start;
+  }
+  .jobs-page input {
+    width: 100% !important;
+  }
+}
+

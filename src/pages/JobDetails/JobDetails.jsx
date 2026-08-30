@@ -17,7 +17,8 @@ import {
   withdrawApplication,
 } from "../../features/application/applicationSlice";
 import JobCard from "../../components/JobCard/JobCard";
-import { setUser } from "../../features/auth/authSlice";
+import { setUser } from '../../features/auth/authSlice';
+import './JobDetails.css';
 
 const formatExperience = (exp) => {
   if (!exp) return "";

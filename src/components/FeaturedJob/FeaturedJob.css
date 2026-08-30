@@ -1,0 +1,11 @@
+
+.featured-jobs-section {
+  position: relative;
+  overflow: hidden;
+}
+.featured-jobs-section .btn-outline-primary {
+  transition: all 0.3s ease;
+}
+.featured-jobs-section .btn-outline-primary:hover {
+  transform: translateX(4px);
+}

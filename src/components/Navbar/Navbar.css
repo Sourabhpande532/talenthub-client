@@ -89,3 +89,15 @@
 [data-bs-theme="dark"] .user-menu-btn {
   border-color: rgba(255, 255, 255, 0.1);
 }
+
+/* Responsive Navbar styling */
+@media (max-width: 991px) {
+  .navbar-collapse {
+    background-color: var(--bs-body-bg);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    margin-top: 0.5rem;
+  }
+}
+

@@ -1,0 +1,26 @@
+
+.left-side-user-info {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.left-side-user-info:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+}
+.avatar-circle {
+  transition: transform 0.3s ease;
+}
+.left-side-user-info:hover .avatar-circle {
+  transform: scale(1.05);
+}
+.social-links a {
+  transition: color 0.2s ease, transform 0.2s ease;
+  display: inline-block;
+}
+.social-links a:hover {
+  transform: translateY(-2px);
+}
+@media (max-width: 991px) {
+  .left-side-user-info {
+    margin-bottom: 2rem;
+  }
+}
