@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { fetchDashboard, fetchAppliedJobs, removeBookmark } from "../../features/user/userSlice";
-import { updateApplicationStatus, withdrawApplication } from "../../features/application/applicationSlice";
+import {
+  fetchDashboard,
+  fetchAppliedJobs,
+  removeBookmark,
+} from "../../features/user/userSlice";
+import {
+  updateApplicationStatus,
+  withdrawApplication,
+} from "../../features/application/applicationSlice";
 import ApplicantCard from "../../components/ApplicantCard/ApplicantCard";
 import AIAssistantModal from "../../components/AIAssistantModal/AIAssistantModal";
 import { setUser } from "../../features/auth/authSlice";
@@ -268,16 +275,8 @@ const Dashboard = () => {
 
     // Sort applications so all job applications from the same company are grouped together
     const sortedAppliedJobs = [...(appliedJobs || [])].sort((a, b) => {
-      const compA = (
-        a.job?.company ||
-        a.job?.companyName ||
-        ""
-      ).toLowerCase();
-      const compB = (
-        b.job?.company ||
-        b.job?.companyName ||
-        ""
-      ).toLowerCase();
+      const compA = (a.job?.company || a.job?.companyName || "").toLowerCase();
+      const compB = (b.job?.company || b.job?.companyName || "").toLowerCase();
       return compA.localeCompare(compB);
     });
 
@@ -361,8 +360,7 @@ const Dashboard = () => {
                       const companyName =
                         app.job?.company ||
                         app.job?.companyName ||
-                        (app.job?.recruiter &&
-                          app.job.recruiter.companyName) ||
+                        (app.job?.recruiter && app.job.recruiter.companyName) ||
                         "Company";
                       return (
                         <tr key={app._id}>
@@ -390,9 +388,7 @@ const Dashboard = () => {
                                 const res = await dispatch(
                                   withdrawApplication(app._id),
                                 );
-                                if (
-                                  withdrawApplication.fulfilled.match(res)
-                                ) {
+                                if (withdrawApplication.fulfilled.match(res)) {
                                   dispatch(fetchAppliedJobs());
                                   dispatch(fetchDashboard());
                                 }
@@ -414,12 +410,12 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Bookmarked Jobs (Wishlist) */}
+        {/* Bookmarked Jobs */}
         <div className='card border-0 shadow-sm rounded-4 mb-5'>
           <div className='card-header bg-white border-0 pt-4 pb-0 px-4 d-flex justify-content-between align-items-center'>
             <h5 className='fw-bold mb-0'>
               <i className='bi bi-bookmark-heart text-primary me-2'></i>
-              Bookmarked Jobs (Wishlist)
+              Bookmarked Jobs
             </h5>
             <span className='badge bg-primary rounded-pill px-3 py-2'>
               {user?.bookmarks?.length || 0} Saved
@@ -431,8 +427,7 @@ const Dashboard = () => {
                 {user.bookmarks.map((job) => {
                   const jobId = typeof job === "string" ? job : job._id;
                   const title = job.title || "Bookmarked Job";
-                  const company =
-                    job.company || job.companyName || "Company";
+                  const company = job.company || job.companyName || "Company";
                   return (
                     <div key={jobId} className='col-md-6 col-lg-4'>
                       <div className='card border shadow-sm rounded-4 p-3 h-100 d-flex flex-column justify-content-between'>
@@ -465,7 +460,7 @@ const Dashboard = () => {
               </div>
             ) : (
               <div className='text-center py-4 text-muted'>
-                <p className='mb-0'>No bookmarked jobs in your wishlist.</p>
+                <p className='mb-0'>No bookmarked jobs in your Bookmarks.</p>
               </div>
             )}
           </div>

@@ -62,10 +62,9 @@ const authSlice = createSlice({
       localStorage.setItem("user", JSON.stringify(action.payload));
     },
   },
-
   extraReducers: (builder) => {
-    // Register
     builder
+      // Register
       .addCase(registerUser.pending, (state) => {
         state.status = "loading";
         state.error = null;
@@ -87,12 +86,14 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.token = action.payload.token;
+
         const user = { ...action.payload.user };
         const tempResume = localStorage.getItem("temp_resume");
         if (tempResume && user.role === "Applicant") {
           user.resume = tempResume;
           localStorage.removeItem("temp_resume");
         }
+
         state.user = user;
         localStorage.setItem("token", action.payload.token);
         localStorage.setItem("user", JSON.stringify(user));
@@ -102,6 +103,19 @@ const authSlice = createSlice({
         state.status = "failed";
         state.error = action.payload;
         toast.error(action.payload);
+      })
+      // Sync bookmarks
+      .addCase("user/addBookmark/fulfilled", (state, action) => {
+        if (action.payload) {
+          state.user = action.payload;
+          localStorage.setItem("user", JSON.stringify(action.payload));
+        }
+      })
+      .addCase("user/removeBookmark/fulfilled", (state, action) => {
+        if (action.payload) {
+          state.user = action.payload;
+          localStorage.setItem("user", JSON.stringify(action.payload));
+        }
       });
   },
 });
