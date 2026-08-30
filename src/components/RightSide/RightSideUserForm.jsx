@@ -35,17 +35,30 @@ function useRegistration() {
   };
 }
 export const RightSideUserForm = ({ role, setRole }) => {
-  const {
-    formData,
-    uploading,
-    status,
-    dispatch,
-    navigate,
-    handleChange,
-  } = useRegistration();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { formData, uploading, status, dispatch, navigate, handleChange } =
+    useRegistration();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.name.trim()) {
+      toast.error("Full Name is required.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters long.");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
       return;
@@ -61,7 +74,9 @@ export const RightSideUserForm = ({ role, setRole }) => {
     if (role === "Applicant") {
       payload.experience = formData.experience;
       payload.location = formData.location;
-      payload.skills = formData.skills.split(",").map((s) => s.trim());
+      payload.skills = formData.skills
+        ? formData.skills.split(",").map((s) => s.trim())
+        : [];
       payload.resume = formData.resume;
     } else {
       payload.companyName = formData.companyName;
@@ -142,28 +157,50 @@ export const RightSideUserForm = ({ role, setRole }) => {
             <label className='form-label fw-medium small text-muted'>
               Password
             </label>
-            <input
-              type='password'
-              name='password'
-              className='form-control bg-body-tertiary text-body'
-              placeholder='Create a password'
-              onChange={handleChange}
-              required
-            />
+            <div className=''>
+              <input
+                type={showPassword ? "text" : "password"}
+                name='password'
+                className='form-control bg-body-tertiary text-body'
+                placeholder='Create a password'
+                onChange={handleChange}
+                required
+              />
+              <button
+                type='button'
+                className='input-group-text bg-body-tertiary text-muted'
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex='-1'
+                aria-label='Toggle password visibility'>
+                <i
+                  className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+              </button>
+            </div>
           </div>
 
           <div className='col-md-6'>
             <label className='form-label fw-medium small text-muted'>
               Confirm Password
             </label>
-            <input
-              type='password'
-              name='confirmPassword'
-              className='form-control bg-body-tertiary text-body'
-              placeholder='Confirm your password'
-              onChange={handleChange}
-              required
-            />
+            <div className=''>
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                name='confirmPassword'
+                className='form-control bg-body-tertiary text-body'
+                placeholder='Confirm your password'
+                onChange={handleChange}
+                required
+              />
+              <button
+                type='button'
+                className='input-group-text bg-body-tertiary text-muted'
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                tabIndex='-1'
+                aria-label='Toggle confirm password visibility'>
+                <i
+                  className={`bi ${showConfirmPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+              </button>
+            </div>
           </div>
 
           {role === "Applicant" ? (

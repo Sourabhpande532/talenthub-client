@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 import { loginUser } from "../../features/auth/authSlice";
 import { useDispatch, useSelector } from "react-redux";
+import toast from "react-hot-toast";
 
 function useLogin() {
   const [formData, setFormData] = useState({
@@ -19,17 +20,30 @@ function useLogin() {
       navigate("/dashboard");
     }
   }, [token, navigate]);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Validations
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters long.");
+      return;
+    }
     dispatch(loginUser(formData));
   };
   return { formData, status, handleChange, handleSubmit };
 }
 
 const Login = () => {
+  const [showPassword, setShowPassword] = useState(false);
   const { formData, handleChange, handleSubmit, status } = useLogin();
   return (
     <div className='auth-page bg-body-tertiary min-vh-100 d-flex align-items-center'>
@@ -69,14 +83,23 @@ const Login = () => {
                       <i className='bi bi-lock text-muted'></i>
                     </span>
                     <input
-                      type='password'
+                      type={showPassword ? "text" : "password"}
                       name='password'
-                      className='form-control bg-body-tertiary border-start-0 ps-0 text-body'
+                      className='form-control bg-body-tertiary border-start-0 border-end-0 ps-0 text-body'
                       placeholder='Enter your password'
                       value={formData.password}
                       onChange={handleChange}
                       required
                     />
+                    <button
+                      type='button'
+                      className='input-group-text bg-body-tertiary text-muted'
+                      onClick={() => setShowPassword(!showPassword)}
+                      tabIndex='-1'
+                      aria-label='Toggle password visibility'>
+                      <i
+                        className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+                    </button>
                   </div>
                 </div>
 
@@ -86,10 +109,10 @@ const Login = () => {
                       type='checkbox'
                       className='form-check-input'
                       id='rememberMe'
+                      required
                     />
                     <label
-                      className='form-check-label text-muted small'
-                      htmlFor='rememberMe'>
+                      className='form-check-label text-muted small' htmlFor='rememberMe'>
                       Remember me
                     </label>
                   </div>
