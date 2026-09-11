@@ -158,18 +158,18 @@ export const RightSideUserForm = ({ role, setRole }) => {
             <label className='form-label fw-medium small text-muted'>
               Password
             </label>
-            <div className=''>
+            <div className='input-group'>
               <input
                 type={showPassword ? "text" : "password"}
                 name='password'
-                className='form-control bg-body-tertiary text-body'
+                className='form-control bg-body-tertiary text-body border-end-0'
                 placeholder='Create a password'
                 onChange={handleChange}
                 required
               />
               <button
                 type='button'
-                className='input-group-text bg-body-tertiary text-muted'
+                className='input-group-text bg-body-tertiary text-muted border-start-0'
                 onClick={() => setShowPassword(!showPassword)}
                 tabIndex='-1'
                 aria-label='Toggle password visibility'>
@@ -183,18 +183,18 @@ export const RightSideUserForm = ({ role, setRole }) => {
             <label className='form-label fw-medium small text-muted'>
               Confirm Password
             </label>
-            <div className=''>
+            <div className='input-group'>
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 name='confirmPassword'
-                className='form-control bg-body-tertiary text-body'
+                className='form-control bg-body-tertiary text-body border-end-0'
                 placeholder='Confirm your password'
                 onChange={handleChange}
                 required
               />
               <button
                 type='button'
-                className='input-group-text bg-body-tertiary text-muted'
+                className='input-group-text bg-body-tertiary text-muted border-start-0'
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 tabIndex='-1'
                 aria-label='Toggle confirm password visibility'>
