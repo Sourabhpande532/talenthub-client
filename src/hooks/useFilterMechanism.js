@@ -23,7 +23,7 @@ export function useFilterMechanism() {
   useEffect(() => {
     const timer = setTimeout(() => {
       updateURLParams(filters);
-    }, 2000); // 400ms debounce
+    }, 350); // 350ms debounce
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);

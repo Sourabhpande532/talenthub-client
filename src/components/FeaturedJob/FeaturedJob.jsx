@@ -9,7 +9,7 @@ const FeaturedJob = () => {
   const { jobsList, status } = useSelector((state) => state.jobs);
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(fetchJobs("?limit6"));
+    dispatch(fetchJobs());
   }, [dispatch]);
 
   return (

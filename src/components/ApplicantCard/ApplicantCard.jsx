@@ -8,6 +8,7 @@ const ApplicantCard = ({ application, onStatusChange }) => {
     switch (status) {
       case "Shortlisted": return "bg-success-subtle text-success border-success";
       case "Rejected": return "bg-danger-subtle text-danger border-danger";
+      case "Withdrawn": return "bg-warning-subtle text-warning border-warning";
       default: return "bg-primary-subtle text-primary border-primary";
     }
   };
@@ -47,29 +48,35 @@ const ApplicantCard = ({ application, onStatusChange }) => {
                 <span className="text-muted small">No Resume</span>
               )}
               <span className={`badge border px-2 py-1 rounded-pill ${getStatusBadgeClass(application.status)}`}>
-                {application.status}
+                {application.status === "Withdrawn" ? "Withdrawn by Candidate" : application.status}
               </span>
             </div>
           </div>
 
           {/* Actions */}
           <div className="col-md-3 text-md-end">
-            <div className="btn-group">
-              <button 
-                className="btn btn-outline-success btn-sm fw-medium"
-                onClick={() => onStatusChange(application._id, "Shortlisted")}
-                disabled={application.status === "Shortlisted"}
-              >
-                Shortlist
-              </button>
-              <button 
-                className="btn btn-outline-danger btn-sm fw-medium"
-                onClick={() => onStatusChange(application._id, "Rejected")}
-                disabled={application.status === "Rejected"}
-              >
-                Reject
-              </button>
-            </div>
+            {application.status === "Withdrawn" ? (
+              <span className="badge bg-secondary-subtle text-secondary border px-3 py-2 rounded-pill small">
+                <i className="bi bi-info-circle me-1"></i> Withdrawn
+              </span>
+            ) : (
+              <div className="btn-group">
+                <button 
+                  className="btn btn-outline-success btn-sm fw-medium"
+                  onClick={() => onStatusChange(application._id, "Shortlisted")}
+                  disabled={application.status === "Shortlisted"}
+                >
+                  Shortlist
+                </button>
+                <button 
+                  className="btn btn-outline-danger btn-sm fw-medium"
+                  onClick={() => onStatusChange(application._id, "Rejected")}
+                  disabled={application.status === "Rejected"}
+                >
+                  Reject
+                </button>
+              </div>
+            )}
           </div>
 
         </div>
@@ -77,11 +84,15 @@ const ApplicantCard = ({ application, onStatusChange }) => {
         {/* Skills Tags */}
         {applicant?.skills && applicant.skills.length > 0 && (
           <div className="mt-3 pt-3 border-top d-flex flex-wrap gap-2">
-            {applicant.skills.map((skill, index) => (
-              <span key={index} className="badge bg-light text-secondary border fw-normal">
-                {skill}{index < applicant.skills.length - 1 ? "," : ""}
-              </span>
-            ))}
+            {applicant.skills.map((skill, index) => {
+              const cleanSkill = skill.replace(/,$/, "").trim();
+              if (!cleanSkill) return null;
+              return (
+                <span key={index} className="badge bg-light text-secondary border fw-normal rounded-pill px-2 py-1">
+                  {cleanSkill}
+                </span>
+              );
+            })}
           </div>
         )}
       </div>

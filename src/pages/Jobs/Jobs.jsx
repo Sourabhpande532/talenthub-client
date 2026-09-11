@@ -33,7 +33,9 @@ const Jobs = () => {
                 value={filters.sort}
                 onChange={handleFilterChange}>
                 <option value='latest'>Most Recent</option>
+                <option value='oldest'>Oldest First</option>
                 <option value='salary-desc'>Highest Salary</option>
+                <option value='salary-asc'>Lowest Salary</option>
               </select>
             </div>
           </div>

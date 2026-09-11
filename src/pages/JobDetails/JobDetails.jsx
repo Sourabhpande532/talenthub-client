@@ -144,8 +144,9 @@ const JobDetails = () => {
       <div className='container'>
         <Link
           to='/jobs'
-          className='text-decoration-none text-muted mb-4 d-inline-block fw-medium'>
-          <i className='bi bi-arrow-left me-2'></i> Back to jobs
+          className='btn btn-light border text-decoration-none text-secondary mb-4 d-inline-flex align-items-center gap-2 fw-medium rounded-pill px-3 py-2 shadow-sm'>
+          <i className='bi bi-arrow-left fs-6 text-primary'></i>
+          <span>Back to jobs</span>
         </Link>
 
         <div className='row g-4'>
@@ -187,14 +188,17 @@ const JobDetails = () => {
 
                 <h4 className='fw-bold mb-3'>Skills Required</h4>
                 <div className='d-flex flex-wrap gap-2 mb-4'>
-                  {currentJob.skills?.map((skill, idx) => (
-                    <span
-                      key={idx}
-                      className='badge bg-light text-dark border px-3 py-2 fw-medium'>
-                      {skill}
-                      {idx < currentJob.skills.length - 1 ? "," : ""}
-                    </span>
-                  ))}
+                  {currentJob.skills?.map((skill, idx) => {
+                    const cleanSkill = skill.replace(/,$/, "").trim();
+                    if (!cleanSkill) return null;
+                    return (
+                      <span
+                        key={idx}
+                        className='badge bg-light text-dark border px-3 py-2 fw-medium rounded-pill'>
+                        {cleanSkill}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             </div>

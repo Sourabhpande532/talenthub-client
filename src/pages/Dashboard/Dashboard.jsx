@@ -378,24 +378,30 @@ const Dashboard = () => {
                           </td>
                           <td>
                             <span
-                              className={`badge ${app.status === "Shortlisted" ? "bg-success" : app.status === "Rejected" ? "bg-danger" : "bg-primary"} bg-opacity-10 text-${app.status === "Shortlisted" ? "success" : app.status === "Rejected" ? "danger" : "primary"} px-3 py-2 rounded-pill`}>
+                              className={`badge ${app.status === "Shortlisted" ? "bg-success" : app.status === "Rejected" ? "bg-danger" : app.status === "Withdrawn" ? "bg-warning text-dark" : "bg-primary"} bg-opacity-10 text-${app.status === "Shortlisted" ? "success" : app.status === "Rejected" ? "danger" : app.status === "Withdrawn" ? "warning" : "primary"} px-3 py-2 rounded-pill`}>
                               {app.status === "New" ? "Applied" : app.status}
                             </span>
                           </td>
                           <td className='text-end'>
-                            <button
-                              className='btn btn-outline-danger btn-sm rounded-pill px-3 fw-medium'
-                              onClick={async () => {
-                                const res = await dispatch(
-                                  withdrawApplication(app._id),
-                                );
-                                if (withdrawApplication.fulfilled.match(res)) {
-                                  dispatch(fetchAppliedJobs());
-                                  dispatch(fetchDashboard());
-                                }
-                              }}>
-                              Withdraw
-                            </button>
+                            {app.status === "Withdrawn" ? (
+                              <span className='badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill small'>
+                                Withdrawn
+                              </span>
+                            ) : (
+                              <button
+                                className='btn btn-outline-danger btn-sm rounded-pill px-3 fw-medium'
+                                onClick={async () => {
+                                  const res = await dispatch(
+                                    withdrawApplication(app._id),
+                                  );
+                                  if (withdrawApplication.fulfilled.match(res)) {
+                                    dispatch(fetchAppliedJobs());
+                                    dispatch(fetchDashboard());
+                                  }
+                                }}>
+                                Withdraw
+                              </button>
+                            )}
                           </td>
                         </tr>
                       );
@@ -507,6 +513,15 @@ const Dashboard = () => {
                             {activity.jobTitle}
                           </strong>{" "}
                           at {activity.companyName} was not selected.
+                        </>
+                      )}
+                      {activity.type === "Withdrawn" && (
+                        <>
+                          Withdrew application for{" "}
+                          <strong className='text-dark'>
+                            {activity.jobTitle}
+                          </strong>{" "}
+                          at {activity.companyName}
                         </>
                       )}
                       {activity.type === "Bookmarked" && (

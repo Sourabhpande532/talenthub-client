@@ -34,6 +34,8 @@ export const FilterSidebar = () => {
               <option value='Hyderabad'>Hyderabad</option>
               <option value='Pune'>Pune</option>
               <option value='Mumbai'>Mumbai</option>
+              <option value='Chennai'>Chennai</option>
+              <option value='Delhi NCR'>Delhi NCR</option>
             </select>
           </div>
 
@@ -42,22 +44,24 @@ export const FilterSidebar = () => {
               Experience
             </h6>
             <div className='d-flex flex-column gap-2'>
-              {["Fresher", "1-3 Yrs", "3-5 Yrs", "5+ Yrs"].map((exp) => (
-                <div className='form-check' key={exp}>
+              {["", "Fresher", "1-3 Yrs", "3-5 Yrs", "5+ Yrs"].map((exp) => (
+                <div className='form-check' key={exp || "all"}>
                   <input
                     className='form-check-input'
                     type='radio'
                     name='experience'
-                    id={exp}
+                    id={exp || "all-exp"}
                     value={exp}
                     checked={filters.experience === exp}
                     onChange={handleFilterChange}
                   />
                   <label
                     className='form-check-label text-secondary'
-                    htmlFor={exp}>
-                    {exp === "Fresher"
-                      ? "0 - 1 years"
+                    htmlFor={exp || "all-exp"}>
+                    {exp === ""
+                      ? "Any Experience"
+                      : exp === "Fresher"
+                      ? "Fresher (0 - 1 years)"
                       : exp.replace("Yrs", "years")}
                   </label>
                 </div>
@@ -96,6 +100,7 @@ export const FilterSidebar = () => {
               <option value='10'>10+ LPA</option>
               <option value='15'>15+ LPA</option>
               <option value='20'>20+ LPA</option>
+              <option value='25'>25+ LPA</option>
             </select>
           </div>
         </div>

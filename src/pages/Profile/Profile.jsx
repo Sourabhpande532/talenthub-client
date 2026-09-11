@@ -143,10 +143,19 @@ const Profile = () => {
           <div className="col-lg-8">
             <div className="card border-0 shadow-sm rounded-4">
               <div className="card-header bg-white border-bottom-0 pt-4 pb-0 px-4 px-md-5 d-flex justify-content-between align-items-center">
-                <h4 className="fw-bold mb-0">Profile Information</h4>
-                {!isEditing && (
-                  <button className="btn btn-outline-primary btn-sm rounded-pill px-4 fw-medium" onClick={() => setIsEditing(true)}>
-                    <i className="bi bi-pencil me-1"></i> Edit Profile
+                <div>
+                  <h4 className="fw-bold mb-1">Profile Information</h4>
+                  <p className="text-muted small mb-0">
+                    {isEditing ? "Update your personal and professional details below." : "View and manage your account details."}
+                  </p>
+                </div>
+                {!isEditing ? (
+                  <button className="btn btn-outline-primary btn-sm rounded-pill px-4 fw-medium shadow-sm" onClick={() => setIsEditing(true)}>
+                    <i className="bi bi-pencil-square me-1"></i> Edit Profile
+                  </button>
+                ) : (
+                  <button className="btn btn-outline-secondary btn-sm rounded-pill px-4 fw-medium" onClick={() => setIsEditing(false)}>
+                    <i className="bi bi-x-lg me-1"></i> Cancel
                   </button>
                 )}
               </div>
@@ -155,47 +164,116 @@ const Profile = () => {
                   <div className="row g-4">
                     <div className="col-md-6">
                       <label className="form-label fw-bold small text-muted text-uppercase">Full Name</label>
-                      <input type="text" name="name" className="form-control bg-body-tertiary text-body py-2" value={formData.name} onChange={handleChange} disabled={!isEditing} required />
+                      <input
+                        type="text"
+                        name="name"
+                        className={`form-control ${isEditing ? "bg-white border-primary-subtle shadow-sm" : "bg-body-tertiary text-body"} py-2`}
+                        value={formData.name}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                        required
+                      />
                     </div>
                     
                     {user?.role === "Applicant" ? (
                       <>
                         <div className="col-12">
                           <label className="form-label fw-bold small text-muted text-uppercase">Professional Bio</label>
-                          <textarea name="bio" className="form-control bg-body-tertiary text-body" rows="3" value={formData.bio} onChange={handleChange} disabled={!isEditing} placeholder="Tell us about yourself..."></textarea>
+                          <textarea
+                            name="bio"
+                            className={`form-control ${isEditing ? "bg-white border-primary-subtle shadow-sm" : "bg-body-tertiary text-body"}`}
+                            rows="3"
+                            value={formData.bio}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                            placeholder="Tell recruiters about your background, strengths, and goals..."
+                          ></textarea>
                         </div>
                         <div className="col-md-6">
                           <label className="form-label fw-bold small text-muted text-uppercase">Experience</label>
-                          <input type="text" name="experience" className="form-control bg-body-tertiary text-body py-2" value={formData.experience} onChange={handleChange} disabled={!isEditing} placeholder="e.g. 3 years in MERN Stack" />
+                          <input
+                            type="text"
+                            name="experience"
+                            className={`form-control ${isEditing ? "bg-white border-primary-subtle shadow-sm" : "bg-body-tertiary text-body"} py-2`}
+                            value={formData.experience}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                            placeholder="e.g. 3+ Yrs in React / Node.js"
+                          />
                         </div>
                         <div className="col-md-6">
                           <label className="form-label fw-bold small text-muted text-uppercase">Education</label>
-                          <input type="text" name="education" className="form-control bg-body-tertiary text-body py-2" value={formData.education} onChange={handleChange} disabled={!isEditing} placeholder="e.g. B.Tech Computer Science" />
+                          <input
+                            type="text"
+                            name="education"
+                            className={`form-control ${isEditing ? "bg-white border-primary-subtle shadow-sm" : "bg-body-tertiary text-body"} py-2`}
+                            value={formData.education}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                            placeholder="e.g. B.Tech Computer Science"
+                          />
                         </div>
                         <div className="col-12">
-                          <label className="form-label fw-bold small text-muted text-uppercase">Skills</label>
-                          <input type="text" name="skills" className="form-control bg-body-tertiary text-body py-2" value={formData.skills} onChange={handleChange} disabled={!isEditing} placeholder="React, Node, Express, MongoDB" />
+                          <label className="form-label fw-bold small text-muted text-uppercase">Skills (comma separated)</label>
+                          <input
+                            type="text"
+                            name="skills"
+                            className={`form-control ${isEditing ? "bg-white border-primary-subtle shadow-sm" : "bg-body-tertiary text-body"} py-2`}
+                            value={formData.skills}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                            placeholder="React, Node.js, TypeScript, Express, MongoDB"
+                          />
                         </div>
-                        {isEditing && (
-                          <div className="col-12">
-                            <label className="form-label fw-bold small text-muted text-uppercase">Resume URL (Drive, Portfolio, etc.)</label>
-                            <input type="url" name="resume" className="form-control bg-body-tertiary text-body py-2" placeholder="https://..." value={formData.resume} onChange={handleChange} disabled={!isEditing} />
-                          </div>
-                        )}
+                        <div className="col-12">
+                          <label className="form-label fw-bold small text-muted text-uppercase">Resume Link (Google Drive, Portfolio, LinkedIn, etc.)</label>
+                          <input
+                            type="url"
+                            name="resume"
+                            className={`form-control ${isEditing ? "bg-white border-primary-subtle shadow-sm" : "bg-body-tertiary text-body"} py-2`}
+                            placeholder="https://drive.google.com/..."
+                            value={formData.resume}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                          />
+                        </div>
                       </>
                     ) : (
                       <>
                         <div className="col-12">
                           <label className="form-label fw-bold small text-muted text-uppercase">Company Name</label>
-                          <input type="text" name="companyName" className="form-control bg-body-tertiary text-body py-2" value={formData.companyName} onChange={handleChange} disabled={!isEditing} />
+                          <input
+                            type="text"
+                            name="companyName"
+                            className={`form-control ${isEditing ? "bg-white border-primary-subtle shadow-sm" : "bg-body-tertiary text-body"} py-2`}
+                            value={formData.companyName}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                          />
                         </div>
                         <div className="col-12">
                           <label className="form-label fw-bold small text-muted text-uppercase">Website</label>
-                          <input type="url" name="website" className="form-control bg-body-tertiary text-body py-2" value={formData.website} onChange={handleChange} disabled={!isEditing} placeholder="https://example.com" />
+                          <input
+                            type="url"
+                            name="website"
+                            className={`form-control ${isEditing ? "bg-white border-primary-subtle shadow-sm" : "bg-body-tertiary text-body"} py-2`}
+                            value={formData.website}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                            placeholder="https://example.com"
+                          />
                         </div>
                         <div className="col-12">
                           <label className="form-label fw-bold small text-muted text-uppercase">About Company</label>
-                          <textarea name="aboutCompany" className="form-control bg-body-tertiary text-body" rows="4" value={formData.aboutCompany} onChange={handleChange} disabled={!isEditing}></textarea>
+                          <textarea
+                            name="aboutCompany"
+                            className={`form-control ${isEditing ? "bg-white border-primary-subtle shadow-sm" : "bg-body-tertiary text-body"}`}
+                            rows="4"
+                            value={formData.aboutCompany}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                            placeholder="Briefly describe your company culture, products, and mission..."
+                          ></textarea>
                         </div>
                       </>
                     )}
@@ -206,7 +284,7 @@ const Profile = () => {
                       <button type="button" className="btn btn-outline-secondary rounded-pill px-4 fw-medium" onClick={() => setIsEditing(false)}>
                         Cancel
                       </button>
-                      <button type="submit" className="btn btn-primary rounded-pill px-5 fw-medium" disabled={status === "loading" || uploading}>
+                      <button type="submit" className="btn btn-primary rounded-pill px-5 fw-medium shadow-sm" disabled={status === "loading" || uploading}>
                         {status === "loading" ? "Saving..." : "Save Changes"}
                       </button>
                     </div>

@@ -109,10 +109,10 @@ const Login = () => {
                       type='checkbox'
                       className='form-check-input'
                       id='rememberMe'
-                      required
                     />
                     <label
-                      className='form-check-label text-muted small' htmlFor='rememberMe'>
+                      className='form-check-label text-muted small'
+                      htmlFor='rememberMe'>
                       Remember me
                     </label>
                   </div>
