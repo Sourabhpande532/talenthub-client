@@ -1,11 +1,19 @@
 :root {
-  --primary-color: #2563eb;
-  --primary-hover: #1d4ed8;
+  --primary-color: #0f172a;
+  --primary-hover: #1e293b;
+  --accent-color: #0d9488;
+  --accent-hover: #0f766e;
   --body-bg: #f8fafc;
   --card-bg: #ffffff;
   --text-main: #0f172a;
   --text-muted: #64748b;
   --border-subtle: #e2e8f0;
+
+  /* Bootstrap Variable Overrides */
+  --bs-primary: #0f172a;
+  --bs-primary-rgb: 15, 23, 42;
+  --bs-link-color: #0d9488;
+  --bs-link-hover-color: #0f766e;
 }
 
 body {
@@ -40,11 +48,11 @@ html {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(37, 99, 235, 0.25);
+  background: rgba(13, 148, 136, 0.25);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(37, 99, 235, 0.5);
+  background: rgba(13, 148, 136, 0.5);
 }
 
 /* Button enhancements */
@@ -57,17 +65,80 @@ html {
   transform: scale(0.98);
 }
 
+.btn-primary {
+  background-color: #0f172a !important;
+  border-color: #0f172a !important;
+  color: #ffffff !important;
+}
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+  background-color: #1e293b !important;
+  border-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+.btn-outline-primary {
+  color: #0f172a !important;
+  border-color: #0f172a !important;
+}
+.btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
+  background-color: #0f172a !important;
+  border-color: #0f172a !important;
+  color: #ffffff !important;
+}
+
+.btn-accent {
+  background-color: #0d9488 !important;
+  border-color: #0d9488 !important;
+  color: #ffffff !important;
+}
+.btn-accent:hover, .btn-accent:focus, .btn-accent:active {
+  background-color: #0f766e !important;
+  border-color: #0f766e !important;
+  color: #ffffff !important;
+}
+
+/* Primary Utility Overrides */
+.text-primary {
+  color: #0f172a !important;
+}
+.bg-primary {
+  background-color: #0f172a !important;
+}
+.bg-primary-subtle {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+.border-primary {
+  border-color: #0f172a !important;
+}
+.border-primary-subtle {
+  border-color: #cbd5e1 !important;
+}
+
+/* Accent Utility Helpers */
+.text-accent {
+  color: #0d9488 !important;
+}
+.bg-accent {
+  background-color: #0d9488 !important;
+  color: #ffffff !important;
+}
+.bg-accent-subtle {
+  background-color: #ccfbf1 !important;
+  color: #0f766e !important;
+}
+
 /* Card global enhancements */
 .card {
   border-radius: 0.875rem !important;
   border: 1px solid var(--border-subtle) !important;
+  background-color: var(--card-bg);
 }
 
 .badge {
   font-weight: 500;
   letter-spacing: 0.01em;
 }
-
 
 /* Prevent horizontal overflow globally */
 html, body {
@@ -81,6 +152,11 @@ img {
   height: auto;
 }
 
+/* Cursor helper */
+.cursor-pointer {
+  cursor: pointer;
+}
+
 /* Hide native browser password reveal & clear icons (e.g., in Edge / Chrome) to avoid duplicate eye icons */
 input::-ms-reveal,
 input::-ms-clear {
@@ -88,4 +164,3 @@ input::-ms-clear {
   width: 0;
   height: 0;
 }
-

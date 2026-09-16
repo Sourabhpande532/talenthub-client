@@ -1,23 +1,61 @@
 .hero-section {
-  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  background-color: #0f172a;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(13, 148, 136, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(217, 119, 6, 0.1) 0px, transparent 50%);
   position: relative;
   overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.hero-section::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  z-index: 0;
+.badge-pill-tag {
+  background-color: rgba(30, 41, 59, 0.7);
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #cbd5e1;
 }
 
-.hero-section .container {
-  position: relative;
-  z-index: 1;
+.dot-indicator {
+  width: 8px;
+  height: 8px;
+  background-color: #0d9488;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 8px rgba(13, 148, 136, 0.6);
+}
+
+.hero-headline {
+  color: #f8fafc;
+  letter-spacing: -0.02em;
+}
+
+.hero-subline {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.btn-search-hero {
+  background-color: #0d9488 !important;
+  border-color: #0d9488 !important;
+  color: #ffffff !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-search-hero:hover {
+  background-color: #0f766e !important;
+  border-color: #0f766e !important;
+  transform: translateY(-1px);
+}
+
+.text-emerald {
+  color: #0d9488 !important;
+}
+
+.search-form {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.search-form input::placeholder {
+  color: #94a3b8;
 }
 
 .search-form input:focus {
@@ -25,7 +63,19 @@
   box-shadow: none;
 }
 
-[data-bs-theme="dark"] .search-form {
-  background-color: var(--bs-body-bg) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+@media (max-width: 576px) {
+  .search-form {
+    border-radius: 1rem !important;
+    flex-direction: column;
+    padding: 0.75rem !important;
+    gap: 0.5rem;
+  }
+  .search-form input {
+    width: 100%;
+    text-align: center;
+  }
+  .btn-search-hero {
+    width: 100%;
+    border-radius: 0.75rem !important;
+  }
 }
