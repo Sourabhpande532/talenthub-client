@@ -34,7 +34,7 @@ export const askHiringAssistant = createAsyncThunk(
   },
 );
 
-// Generate Job Description
+// Generate AI Job Description
 export const generateJobDescription = createAsyncThunk(
   "ai/generateJobDescription",
   async ({ title, skills, experience }, { rejectWithValue }) => {

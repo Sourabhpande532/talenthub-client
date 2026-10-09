@@ -9,7 +9,7 @@ const ProtectingRoutes = ({ children, requiredRole }) => {
   }
 
   if (requiredRole && user?.role !== requiredRole) {
-    // If the user tries to access a route they aren't authorized for, send them to their dashboard
+    // If user tries to access a route they aren't authorized for, send them to their dashboard
     return <Navigate to='/dashboard' replace />;
   }
 
