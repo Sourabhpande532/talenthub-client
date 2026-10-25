@@ -37,7 +37,7 @@ export function useFilterMechanism() {
   useEffect(() => {
     const timer = setTimeout(() => {
       updateURLParams(filters);
-    }, 350);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [filters, updateURLParams]);
 

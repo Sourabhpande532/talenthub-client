@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./hero.css"
 
 const heroStyles = {
   section: {
@@ -29,9 +30,12 @@ const heroStyles = {
   },
 
   searchForm: {
+    width: "100%",
     maxWidth: "700px",
+    minWidth: 0,
     backgroundColor: "#ffffff",
     border: "1px solid #d9e2ef",
+    boxSizing: "border-box",
   },
 
   searchIcon: {
@@ -117,14 +121,17 @@ const Hero = () => {
 
         <form
           onSubmit={handleSearch}
-          className='mx-auto p-2 d-flex align-items-center rounded-pill shadow-sm'
+          className='hero-search-form mx-auto p-2 d-flex align-items-center rounded-pill shadow-sm'
           style={heroStyles.searchForm}>
-          <i className='bi bi-search ms-3 me-2' style={heroStyles.searchIcon} />
+          <i
+            className='bi bi-search ms-2 ms-sm-3 me-2 flex-shrink-0'
+            style={heroStyles.searchIcon}
+          />
 
           <input
             type='text'
             className='form-control border-0 bg-transparent shadow-none'
-            placeholder='Search jobs, companies, or skills...'
+            placeholder="Search jobs & skills..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={heroStyles.input}
@@ -132,7 +139,7 @@ const Hero = () => {
 
           <button
             type='submit'
-            className='btn rounded-pill px-4 fw-semibold text-white'
+            className='btn rounded-pill px-3 px-sm-4 fw-semibold text-white flex-shrink-0'
             style={heroStyles.searchButton}>
             Search
           </button>

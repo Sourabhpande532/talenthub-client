@@ -108,6 +108,7 @@ const Login = () => {
                     <input
                       type='checkbox'
                       className='form-check-input'
+                      required
                       id='rememberMe'
                     />
                     <label

@@ -89,7 +89,7 @@ export const FilterContent = ({ isMobile = false }) => {
           className="form-select bg-body-tertiary text-body border-secondary border-opacity-25 py-2 rounded-3"
           value={filters.employmentType}
           onChange={handleFilterChange}>
-          <option value="">All Employment Types</option>
+          <option value="">All Job Types</option>
           <option value="Full-time">Full Time</option>
           <option value="Part-time">Part Time</option>
           <option value="Internship">Internship</option>

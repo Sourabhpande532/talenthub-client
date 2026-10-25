@@ -1,81 +1,42 @@
-.hero-section {
-  background-color: #0f172a;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(13, 148, 136, 0.15) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(217, 119, 6, 0.1) 0px, transparent 50%);
-  position: relative;
-  overflow: hidden;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+.hero-search-form {
+  box-sizing: border-box;
+  gap: 4px;
 }
 
-.badge-pill-tag {
-  background-color: rgba(30, 41, 59, 0.7);
-  border-color: rgba(255, 255, 255, 0.12) !important;
-  color: #cbd5e1;
+.hero-search-form .form-control {
+  flex: 1 1 0%;
+  width: 0;
+  min-width: 0;
+  padding: 0.5rem 0.25rem;
+  font-size: 1rem;
 }
 
-.dot-indicator {
-  width: 8px;
-  height: 8px;
-  background-color: #0d9488;
-  border-radius: 50%;
-  display: inline-block;
-  box-shadow: 0 0 8px rgba(13, 148, 136, 0.6);
+.hero-search-form .form-control::placeholder {
+  color: #64748b;
+  opacity: 1;
 }
 
-.hero-headline {
-  color: #f8fafc;
-  letter-spacing: -0.02em;
+.hero-search-form button {
+  min-width: 0 !important;
+  white-space: nowrap;
+  line-height: 1.5;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
-.hero-subline {
-  color: #94a3b8;
-  font-weight: 400;
-}
-
-.btn-search-hero {
-  background-color: #0d9488 !important;
-  border-color: #0d9488 !important;
-  color: #ffffff !important;
-  transition: all 0.2s ease-in-out;
-}
-
-.btn-search-hero:hover {
-  background-color: #0f766e !important;
-  border-color: #0f766e !important;
-  transform: translateY(-1px);
-}
-
-.text-emerald {
-  color: #0d9488 !important;
-}
-
-.search-form {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.2) !important;
-}
-
-.search-form input::placeholder {
-  color: #94a3b8;
-}
-
-.search-form input:focus {
-  outline: none;
-  box-shadow: none;
-}
-
-@media (max-width: 576px) {
-  .search-form {
-    border-radius: 1rem !important;
-    flex-direction: column;
-    padding: 0.75rem !important;
-    gap: 0.5rem;
+@media (max-width: 400px) {
+  .hero-search-form {
+    padding: 6px !important;
+    gap: 2px;
   }
-  .search-form input {
-    width: 100%;
-    text-align: center;
+
+  .hero-search-form .form-control {
+    font-size: 0.875rem;
   }
-  .btn-search-hero {
-    width: 100%;
-    border-radius: 0.75rem !important;
+
+  .hero-search-form button {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    font-size: 0.875rem;
   }
 }
