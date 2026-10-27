@@ -104,7 +104,28 @@ const authSlice = createSlice({
         state.error = action.payload;
         toast.error(action.payload);
       })
-      // Sync bookmarks
+      // Sync profile & bookmarks across user actions
+      .addCase("user/fetchProfile/fulfilled", (state, action) => {
+        if (action.payload) {
+          state.user = action.payload;
+          localStorage.setItem("user", JSON.stringify(action.payload));
+        }
+      })
+      .addCase("user/updateProfile/fulfilled", (state, action) => {
+        if (action.payload) {
+          state.user = {
+            ...state.user,
+            ...action.payload,
+            bookmarks:
+              action.payload.bookmarks &&
+              action.payload.bookmarks.length > 0 &&
+              typeof action.payload.bookmarks[0] === "object"
+                ? action.payload.bookmarks
+                : state.user?.bookmarks || action.payload.bookmarks,
+          };
+          localStorage.setItem("user", JSON.stringify(state.user));
+        }
+      })
       .addCase("user/addBookmark/fulfilled", (state, action) => {
         if (action.payload) {
           state.user = action.payload;

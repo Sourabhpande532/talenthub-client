@@ -1,9 +1,8 @@
-/* eslint-disable no-unused-vars */
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import toast from 'react-hot-toast';
-import './RightSideUserForm.css';
+import toast from "react-hot-toast";
+import "./RightSideUserForm.css";
 import { registerUser } from "../../features/auth/authSlice";
 
 function useRegistration() {
@@ -18,10 +17,16 @@ function useRegistration() {
     resume: "",
     companyName: "",
   });
-  const [uploading, setUploading] = useState(false);
-  const { status } = useSelector((state) => state.auth);
+  const [uploading] = useState(false);
+  const { status, token } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (token) {
+      navigate("/dashboard");
+    }
+  }, [token, navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -35,6 +40,7 @@ function useRegistration() {
     handleChange,
   };
 }
+
 export const RightSideUserForm = ({ role, setRole }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -73,12 +79,28 @@ export const RightSideUserForm = ({ role, setRole }) => {
     };
 
     if (role === "Applicant") {
+      if (formData.resume && formData.resume.trim()) {
+        try {
+          const normalizedResume = /^https?:\/\//i.test(formData.resume.trim())
+            ? formData.resume.trim()
+            : `https://${formData.resume.trim()}`;
+          new URL(normalizedResume);
+          payload.resume = normalizedResume;
+        } catch {
+          toast.error("Please enter a valid Resume URL.");
+          return;
+        }
+      } else {
+        payload.resume = "";
+      }
       payload.experience = formData.experience;
       payload.location = formData.location;
       payload.skills = formData.skills
-        ? formData.skills.split(",").map((s) => s.trim())
+        ? formData.skills
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
         : [];
-      payload.resume = formData.resume;
     } else {
       payload.companyName = formData.companyName;
     }
@@ -93,186 +115,248 @@ export const RightSideUserForm = ({ role, setRole }) => {
   };
 
   return (
-    <div className='col-lg-8 p-4 p-md-5'>
-      {/* Mobile Role Switcher (Hidden on LG) */}
-      <div className='d-lg-none mb-4'>
-        <h3 className='fw-bold mb-3'>Create your account</h3>
-        <div className='btn-group w-100 shadow-sm' role='group'>
-          <input
-            type='radio'
-            className='btn-check'
-            name='role'
-            id='roleApp'
-            checked={role === "Applicant"}
-            onChange={() => setRole("Applicant")}
-          />
-          <label className='btn btn-outline-primary' htmlFor='roleApp'>
-            Applicant
-          </label>
-
-          <input
-            type='radio'
-            className='btn-check'
-            name='role'
-            id='roleRec'
-            checked={role === "Recruiter"}
-            onChange={() => setRole("Recruiter")}
-          />
-          <label className='btn btn-outline-primary' htmlFor='roleRec'>
-            Recruiter
-          </label>
+    <div className="lg:col-span-7 p-6 sm:p-8 md:p-10 bg-white">
+      {/* Mobile Role Switcher (Visible below LG) */}
+      <div className="lg:hidden mb-6">
+        <h1 className="font-display text-2xl font-bold text-slate-900 mb-1">
+          Create your account
+        </h1>
+        <p className="text-xs text-slate-500 mb-4">
+          Select your account type to get started
+        </p>
+        <div
+          className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200"
+          role="group"
+          aria-label="Account role">
+          <button
+            type="button"
+            onClick={() => setRole("Applicant")}
+            className={`py-2 px-3 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+              role === "Applicant"
+                ? "bg-navy-900 text-white shadow-sm"
+                : "text-slate-600 hover:text-slate-900"
+            }`}>
+            <i className="bi bi-person-workspace"></i>
+            <span>Applicant</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setRole("Recruiter")}
+            className={`py-2 px-3 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+              role === "Recruiter"
+                ? "bg-navy-900 text-white shadow-sm"
+                : "text-slate-600 hover:text-slate-900"
+            }`}>
+            <i className="bi bi-building"></i>
+            <span>Recruiter</span>
+          </button>
         </div>
       </div>
 
+      {/* Desktop Form Heading */}
+      <div className="hidden lg:block mb-6">
+        <h2 className="font-display text-xl font-bold text-slate-900 m-0">
+          {role === "Applicant"
+            ? "Candidate Registration"
+            : "Recruiter Registration"}
+        </h2>
+        <p className="text-xs text-slate-500 mt-1 mb-0">
+          {role === "Applicant"
+            ? "Complete your profile to apply for roles and generate AI interview guides."
+            : "Set up your employer account to publish roles and manage applicants."}
+        </p>
+      </div>
+
       <form onSubmit={handleSubmit}>
-        <div className='row g-3'>
-          <div className='col-md-6'>
-            <label className='form-label fw-medium small text-muted'>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label
+              htmlFor="reg-name"
+              className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
               Full Name
             </label>
             <input
-              type='text'
-              name='name'
-              className='form-control bg-body-tertiary text-body'
-              placeholder='Enter your full name'
+              id="reg-name"
+              type="text"
+              name="name"
+              value={formData.name}
+              className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 focus:outline-none text-sm text-slate-900 placeholder-slate-400"
+              placeholder="Enter your full name"
               onChange={handleChange}
               required
             />
           </div>
 
-          <div className='col-md-6'>
-            <label className='form-label fw-medium small text-muted'>
+          <div>
+            <label
+              htmlFor="reg-email"
+              className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
               Email Address
             </label>
             <input
-              type='email'
-              name='email'
-              className='form-control bg-body-tertiary text-body'
-              placeholder='Enter your email'
+              id="reg-email"
+              type="email"
+              name="email"
+              value={formData.email}
+              className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 focus:outline-none text-sm text-slate-900 placeholder-slate-400"
+              placeholder="Enter your email"
               onChange={handleChange}
               required
             />
           </div>
 
-          <div className='col-md-6'>
-            <label className='form-label fw-medium small text-muted'>
+          <div>
+            <label
+              htmlFor="reg-password"
+              className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
               Password
             </label>
-            <div className='input-group'>
+            <div className="relative flex items-center">
               <input
+                id="reg-password"
                 type={showPassword ? "text" : "password"}
-                name='password'
-                className='form-control bg-body-tertiary text-body border-end-0'
-                placeholder='Create a password'
+                name="password"
+                value={formData.password}
+                className="w-full pl-3.5 pr-10 py-2.5 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 focus:outline-none text-sm text-slate-900 placeholder-slate-400"
+                placeholder="Create a password (min 6 chars)"
                 onChange={handleChange}
                 required
               />
               <button
-                type='button'
-                className='input-group-text bg-body-tertiary text-muted border-start-0'
+                type="button"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-md text-slate-400 hover:text-slate-700 flex items-center justify-center"
                 onClick={() => setShowPassword(!showPassword)}
-                tabIndex='-1'
-                aria-label='Toggle password visibility'>
+                tabIndex="-1"
+                aria-label="Toggle password visibility">
                 <i
-                  className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+                  className={`bi ${
+                    showPassword ? "bi-eye-slash" : "bi-eye"
+                  }`}></i>
               </button>
             </div>
           </div>
 
-          <div className='col-md-6'>
-            <label className='form-label fw-medium small text-muted'>
+          <div>
+            <label
+              htmlFor="reg-confirm-password"
+              className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
               Confirm Password
             </label>
-            <div className='input-group'>
+            <div className="relative flex items-center">
               <input
+                id="reg-confirm-password"
                 type={showConfirmPassword ? "text" : "password"}
-                name='confirmPassword'
-                className='form-control bg-body-tertiary text-body border-end-0'
-                placeholder='Confirm your password'
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                className="w-full pl-3.5 pr-10 py-2.5 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 focus:outline-none text-sm text-slate-900 placeholder-slate-400"
+                placeholder="Confirm your password"
                 onChange={handleChange}
                 required
               />
               <button
-                type='button'
-                className='input-group-text bg-body-tertiary text-muted border-start-0'
+                type="button"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-md text-slate-400 hover:text-slate-700 flex items-center justify-center"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                tabIndex='-1'
-                aria-label='Toggle confirm password visibility'>
+                tabIndex="-1"
+                aria-label="Toggle confirm password visibility">
                 <i
-                  className={`bi ${showConfirmPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+                  className={`bi ${
+                    showConfirmPassword ? "bi-eye-slash" : "bi-eye"
+                  }`}></i>
               </button>
             </div>
           </div>
 
           {role === "Applicant" ? (
             <>
-              <div className='col-md-6'>
-                <label className='form-label fw-medium small text-muted'>
+              <div>
+                <label
+                  htmlFor="reg-experience"
+                  className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
                   Experience
                 </label>
                 <select
-                  name='experience'
-                  className='form-select bg-body-tertiary text-body'
+                  id="reg-experience"
+                  name="experience"
+                  value={formData.experience}
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 focus:outline-none text-sm text-slate-900 cursor-pointer"
                   onChange={handleChange}
                   required>
-                  <option value=''>Select your experience</option>
-                  <option value='Fresher'>Fresher (0 years)</option>
-                  <option value='1-3 Yrs'>1 - 3 Years</option>
-                  <option value='3-5 Yrs'>3 - 5 Years</option>
-                  <option value='5+ Yrs'>5+ Years</option>
+                  <option value="">Select your experience</option>
+                  <option value="Fresher">Fresher (0 years)</option>
+                  <option value="1-3 Yrs">1 - 3 Years</option>
+                  <option value="3-5 Yrs">3 - 5 Years</option>
+                  <option value="5+ Yrs">5+ Years</option>
                 </select>
               </div>
 
-              <div className='col-md-6'>
-                <label className='form-label fw-medium small text-muted'>
+              <div>
+                <label
+                  htmlFor="reg-location"
+                  className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
                   Current Location
                 </label>
                 <input
-                  type='text'
-                  name='location'
-                  className='form-control bg-body-tertiary text-body'
-                  placeholder='e.g. Bangalore, India'
+                  id="reg-location"
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 focus:outline-none text-sm text-slate-900 placeholder-slate-400"
+                  placeholder="e.g. Bangalore, India"
                   onChange={handleChange}
                   required
                 />
               </div>
 
-              <div className='col-12'>
-                <label className='form-label fw-medium small text-muted'>
+              <div className="sm:col-span-2">
+                <label
+                  htmlFor="reg-skills"
+                  className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
                   Skills (Optional)
                 </label>
                 <input
-                  type='text'
-                  name='skills'
-                  className='form-control bg-body-tertiary text-body'
-                  placeholder='e.g. React, Node.js, SQL (Comma separated)'
+                  id="reg-skills"
+                  type="text"
+                  name="skills"
+                  value={formData.skills}
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 focus:outline-none text-sm text-slate-900 placeholder-slate-400"
+                  placeholder="e.g. React, Node.js, SQL (Comma separated)"
                   onChange={handleChange}
                 />
               </div>
 
-              <div className='col-12'>
-                <label className='form-label fw-medium small text-muted'>
+              <div className="sm:col-span-2">
+                <label
+                  htmlFor="reg-resume"
+                  className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
                   Resume URL (Optional)
                 </label>
                 <input
-                  type='url'
-                  name='resume'
-                  className='form-control bg-body-tertiary text-body'
-                  placeholder='Paste Google Drive or Portfolio link'
+                  id="reg-resume"
+                  type="text"
+                  inputMode="url"
+                  name="resume"
+                  value={formData.resume}
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 focus:outline-none text-sm text-slate-900 placeholder-slate-400"
+                  placeholder="Paste Google Drive or Portfolio link"
                   onChange={handleChange}
                 />
               </div>
             </>
           ) : (
-            <div className='col-12'>
-              <label className='form-label fw-medium small text-muted'>
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="reg-company"
+                className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
                 Company Name
               </label>
               <input
-                type='text'
-                name='companyName'
-                className='form-control bg-body-tertiary text-body'
-                placeholder='Enter company name'
+                id="reg-company"
+                type="text"
+                name="companyName"
+                value={formData.companyName}
+                className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20 focus:outline-none text-sm text-slate-900 placeholder-slate-400"
+                placeholder="Enter company name"
                 onChange={handleChange}
                 required
               />
@@ -280,36 +364,52 @@ export const RightSideUserForm = ({ role, setRole }) => {
           )}
         </div>
 
-        <div className='form-check mt-4 mb-4'>
-          <input
-            type='checkbox'
-            className='form-check-input'
-            id='termsCheck'
-            required
-          />
+        <div className="mt-5 mb-5">
           <label
-            className='form-check-label text-muted small'
-            htmlFor='termsCheck'>
-            I agree to the{" "}
-            <a href='#!' className='text-decoration-none fw-medium'>
-              Terms of Service
-            </a>{" "}
-            and{" "}
-            <a href='#!' className='text-decoration-none fw-medium'>
-              Privacy Policy
-            </a>
+            htmlFor="termsCheck"
+            className="inline-flex items-start gap-2.5 text-xs text-slate-600 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              className="w-4 h-4 mt-0.5 rounded border-slate-300 accent-navy-900 cursor-pointer flex-shrink-0"
+              id="termsCheck"
+              required
+            />
+            <span>
+              I agree to the{" "}
+              <span className="font-semibold text-navy-900">
+                Terms of Service
+              </span>{" "}
+              and{" "}
+              <span className="font-semibold text-navy-900">
+                Privacy Policy
+              </span>
+            </span>
           </label>
         </div>
 
         <button
-          type='submit'
-          className='btn btn-primary btn-lg w-100 rounded-3 fw-medium'
+          type="submit"
+          className="w-full py-3 px-4 rounded-xl bg-navy-900 hover:bg-navy-800 disabled:opacity-60 text-white font-semibold text-sm shadow-sm transition-colors flex items-center justify-center gap-2"
           disabled={status === "loading" || uploading}>
-          {status === "loading" ? (
-            <span className='spinner-border spinner-border-sm me-2'></span>
-          ) : null}
-          Create Account
+          {status === "loading" && (
+            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+          )}
+          <span>
+            {status === "loading" ? "Creating Account..." : "Create Account"}
+          </span>
         </button>
+
+        {/* Mobile Login Link */}
+        <div className="lg:hidden mt-6 pt-5 border-t border-slate-100 text-center">
+          <p className="text-sm text-slate-600 m-0">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="font-semibold text-brand-700 hover:underline no-underline">
+              Login here
+            </Link>
+          </p>
+        </div>
       </form>
     </div>
   );

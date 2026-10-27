@@ -2,6 +2,21 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API_URL from "../../api/axiosHelper";
 import toast from "react-hot-toast";
 
+// Fetch User Profile (populates bookmarks and returns fresh user data)
+export const fetchProfile = createAsyncThunk(
+  "user/fetchProfile",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await API_URL.get("/api/users/profile");
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch profile",
+      );
+    }
+  },
+);
+
 // Fetch Dashboard (Automatically gets Applicant or Recruiter dashboard based on token backend)
 export const fetchDashboard = createAsyncThunk(
   "user/fetchDashboard",
@@ -92,7 +107,9 @@ const userSlice = createSlice({
     builder
       // Dashboard
       .addCase(fetchDashboard.pending, (state) => {
-        state.status = "loading";
+        if (!state.dashboardData) {
+          state.status = "loading";
+        }
       })
       .addCase(fetchDashboard.fulfilled, (state, action) => {
         state.status = "succeeded";
@@ -119,6 +136,33 @@ const userSlice = createSlice({
       })
       .addCase(removeBookmark.fulfilled, (state) => {
         toast.success("Bookmark removed");
+      })
+      // Instant sync when Recruiter updates an application status
+      .addCase("applications/updateApplicationStatus/fulfilled", (state, action) => {
+        if (state.dashboardData?.recentApplications && action.payload) {
+          const { id, status: newStatus } = action.payload;
+          const appItem = state.dashboardData.recentApplications.find(
+            (a) => a._id === id,
+          );
+          if (appItem) {
+            const prevStatus = appItem.status;
+            appItem.status = newStatus;
+            if (state.dashboardData.stats) {
+              if (prevStatus !== "Shortlisted" && newStatus === "Shortlisted") {
+                state.dashboardData.stats.totalShortlisted =
+                  (state.dashboardData.stats.totalShortlisted || 0) + 1;
+              } else if (
+                prevStatus === "Shortlisted" &&
+                newStatus !== "Shortlisted"
+              ) {
+                state.dashboardData.stats.totalShortlisted = Math.max(
+                  0,
+                  (state.dashboardData.stats.totalShortlisted || 1) - 1,
+                );
+              }
+            }
+          }
+        }
       });
   },
 });

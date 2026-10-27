@@ -1,90 +1,15 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "./Hero.css"
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "./Hero.css";
 
-const heroStyles = {
-  section: {
-    position: "relative",
-    overflow: "hidden",
-    backgroundColor: "#f4f7fb",
-    borderBottom: "1px solid #dbe4f0",
-  },
-
-  container: {
-    position: "relative",
-    zIndex: 1,
-  },
-
-  heading: {
-    fontSize: "clamp(2.2rem, 5vw, 3.6rem)",
-    lineHeight: 1.15,
-    color: "#172033",
-    letterSpacing: "-1px",
-  },
-
-  description: {
-    maxWidth: "620px",
-    fontSize: "1.1rem",
-    lineHeight: 1.7,
-    color: "#526174",
-  },
-
-  searchForm: {
-    width: "100%",
-    maxWidth: "700px",
-    minWidth: 0,
-    backgroundColor: "#ffffff",
-    border: "1px solid #d9e2ef",
-    boxSizing: "border-box",
-  },
-
-  searchIcon: {
-    color: "#64748b",
-    fontSize: "1.05rem",
-  },
-
-  input: {
-    color: "#172033",
-    outline: "none",
-    boxShadow: "none",
-  },
-
-  searchButton: {
-    backgroundColor: "#2563a8",
-    borderColor: "#2563a8",
-    minWidth: "100px",
-  },
-
-  features: {
-    color: "#64748b",
-    fontSize: "0.9rem",
-  },
-
-  featureIcon: {
-    color: "#3b82c4",
-  },
-
-  topShape: {
-    position: "absolute",
-    width: "220px",
-    height: "220px",
-    borderRadius: "50%",
-    backgroundColor: "#e3edf8",
-    top: "-110px",
-    right: "-60px",
-    opacity: 0.8,
-  },
-
-  bottomShape: {
-    position: "absolute",
-    width: "160px",
-    height: "160px",
-    borderRadius: "50%",
-    backgroundColor: "#eaf1f9",
-    bottom: "-80px",
-    left: "-40px",
-  },
-};
+const POPULAR_SEARCHES = [
+  { label: "React", to: "/jobs?search=React" },
+  { label: "Node.js", to: "/jobs?search=Node.js" },
+  { label: "Python", to: "/jobs?search=Python" },
+  { label: "Remote", to: "/jobs?location=Remote" },
+  { label: "Bangalore", to: "/jobs?location=Bangalore" },
+  { label: "Full Stack", to: "/jobs?search=Full+Stack" },
+];
 
 const Hero = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -92,85 +17,94 @@ const Hero = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-
     if (searchQuery.trim()) {
-      navigate(`/jobs?search=${encodeURIComponent(searchQuery)}`);
+      navigate(`/jobs?search=${encodeURIComponent(searchQuery.trim())}`);
     } else {
       navigate("/jobs");
     }
   };
 
   return (
-    <section className='text-center py-5' style={heroStyles.section}>
-      {/* Decorative shapes */}
-      <div style={heroStyles.topShape} />
+    <section className="relative bg-navy-900 text-white border-b border-navy-800 overflow-hidden">
+      {/* Subtle architectural grid pattern */}
+      <div
+        className="absolute inset-0 opacity-[0.04] pointer-events-none"
+        style={{
+          backgroundImage:
+            "radial-gradient(#ffffff 1px, transparent 1px)",
+          backgroundSize: "24px 24px",
+        }}
+      />
 
-      <div style={heroStyles.bottomShape} />
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 lg:py-24">
+        <div className="max-w-3xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-navy-800 border border-navy-700 text-brand-300 text-xs font-semibold tracking-wide mb-6">
+            <i className="bi bi-stars text-brand-400"></i>
+            <span>AI-Powered Technical Hiring & Interview Readiness</span>
+          </div>
 
-      <div className='container py-5' style={heroStyles.container}>
-        <h1 className='fw-bold mb-4' style={heroStyles.heading}>
-          Find Tech Roles That Fit Your Craft
-        </h1>
+          <h1 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] text-white tracking-tight leading-[1.15] mb-5">
+            Find Tech Roles That{" "}
+            <span className="text-brand-400">Fit Your Craft</span>
+          </h1>
 
-        <p
-          className='hero-subline lead mb-5 mx-auto opacity-90'
-          style={{ maxWidth: "640px" }}>
-          Explore curated engineering, product, and design positions. Get
-          AI-powered preparation guides and apply directly to top hiring teams.
-        </p>
+          <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto mb-8">
+            Explore curated engineering, product, and design positions. Generate
+            tailored AI interview preparation guides and apply directly to top
+            hiring teams.
+          </p>
 
-        <form
-          onSubmit={handleSearch}
-          className='hero-search-form mx-auto p-2 d-flex align-items-center rounded-pill shadow-sm'
-          style={heroStyles.searchForm}>
-          <i
-            className='bi bi-search ms-2 ms-sm-3 me-2 flex-shrink-0'
-            style={heroStyles.searchIcon}
-          />
+          {/* Search Form */}
+          <form
+            onSubmit={handleSearch}
+            className="hero-search-form max-w-2xl mx-auto bg-white p-2 rounded-xl shadow-lg border border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <div className="flex items-center flex-1 min-w-0 px-2.5 sm:pl-3.5 sm:pr-1">
+              <i className="bi bi-search text-slate-400 text-base flex-shrink-0 mr-2.5"></i>
+              <input
+                type="text"
+                aria-label="Search jobs, skills, or companies"
+                className="w-full py-2 text-sm sm:text-base text-slate-900 placeholder-slate-400 bg-transparent border-0 focus:outline-none"
+                placeholder="Search by role, skill (React, Python), or company..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
 
-          <input
-            type='text'
-            className='form-control border-0 bg-transparent shadow-none'
-            placeholder="Search jobs & skills..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={heroStyles.input}
-          />
+            <button
+              type="submit"
+              className="w-full sm:w-auto px-5 sm:px-6 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm sm:text-base transition-colors flex-shrink-0 shadow-sm">
+              Search Jobs
+            </button>
+          </form>
 
-          <button
-            type='submit'
-            className='btn rounded-pill px-3 px-sm-4 fw-semibold text-white flex-shrink-0'
-            style={heroStyles.searchButton}>
-            Search
-          </button>
-        </form>
+          {/* Quick Popular Search Chips */}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs">
+            <span className="text-slate-400 font-medium mr-1">Popular:</span>
+            {POPULAR_SEARCHES.map((item) => (
+              <Link
+                key={item.label}
+                to={item.to}
+                className="px-2.5 py-1 rounded-md bg-navy-800/90 hover:bg-navy-700 text-slate-200 border border-navy-700 transition-colors no-underline">
+                {item.label}
+              </Link>
+            ))}
+          </div>
 
-        <div
-          className='d-flex justify-content-center flex-wrap gap-3 mt-4'
-          style={heroStyles.features}>
-          <span>
-            <i
-              className='bi bi-check-circle me-1'
-              style={heroStyles.featureIcon}
-            />
-            Find opportunities
-          </span>
-
-          <span>
-            <i
-              className='bi bi-check-circle me-1'
-              style={heroStyles.featureIcon}
-            />
-            Explore companies
-          </span>
-
-          <span>
-            <i
-              className='bi bi-check-circle me-1'
-              style={heroStyles.featureIcon}
-            />
-            Build your career
-          </span>
+          {/* Core Value Highlights */}
+          <div className="mt-10 pt-8 border-t border-navy-800/80 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs sm:text-sm text-slate-300">
+            <span className="inline-flex items-center gap-2">
+              <i className="bi bi-check-circle-fill text-brand-400"></i>
+              <span>Find verified opportunities</span>
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <i className="bi bi-check-circle-fill text-brand-400"></i>
+              <span>Explore leading tech companies</span>
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <i className="bi bi-check-circle-fill text-brand-400"></i>
+              <span>Prepare with job-grounded AI</span>
+            </span>
+          </div>
         </div>
       </div>
     </section>

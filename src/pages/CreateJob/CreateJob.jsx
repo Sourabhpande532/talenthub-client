@@ -1,15 +1,23 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import "./CreateJob.css";
-import { clearAIResults, generateJobDescription } from "../../features/ai/aiSlice";
-import { createJob, fetchJobById, updateJob } from "../../features/jobs/jobSlice";
+import {
+  clearAIResults,
+  generateJobDescription,
+} from "../../features/ai/aiSlice";
+import {
+  createJob,
+  fetchJobById,
+  updateJob,
+} from "../../features/jobs/jobSlice";
 
 const CreateJob = () => {
   const { id } = useParams();
   const isEditing = Boolean(id);
+
+  const todayStr = new Date().toISOString().split("T")[0];
 
   const [formData, setFormData] = useState({
     title: "",
@@ -21,13 +29,12 @@ const CreateJob = () => {
     deadline: "",
     skills: "",
     description: "",
+    remote: false,
     status: "Active",
   });
 
   const { currentJob, status: jobStatus } = useSelector((state) => state.jobs);
-  const { status: aiStatus } = useSelector(
-    (state) => state.ai,
-  );
+  const { status: aiStatus } = useSelector((state) => state.ai);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -51,13 +58,18 @@ const CreateJob = () => {
           : "",
         skills: currentJob.skills ? currentJob.skills.join(", ") : "",
         description: currentJob.description || "",
+        remote: Boolean(currentJob.remote),
         status: currentJob.status || "Active",
       });
     }
   }, [isEditing, currentJob, id]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const handleGenerateDescription = async (e) => {
@@ -91,8 +103,22 @@ const CreateJob = () => {
       return;
     }
 
+    if (formData.deadline) {
+      const selectedDate = new Date(formData.deadline);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (!isEditing && selectedDate < today) {
+        toast.error("Application deadline cannot be in the past");
+        return;
+      }
+    }
+
     const payload = {
       ...formData,
+      salary: Number(formData.salary),
+      remote:
+        Boolean(formData.remote) ||
+        formData.location.trim().toLowerCase() === "remote",
       skills:
         typeof formData.skills === "string"
           ? formData.skills
@@ -118,219 +144,272 @@ const CreateJob = () => {
     }
   };
 
+  const inputClass =
+    "w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/15 transition-all";
+  const labelClass =
+    "block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5";
+
   return (
-    <div className='create-job-page bg-body-tertiary min-vh-100 py-4'>
-      <div className='container'>
+    <div className="create-job-page min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
         <Link
-          to='/dashboard'
-          className='text-decoration-none text-muted mb-4 d-inline-block fw-medium'>
-          <i className='bi bi-arrow-left me-2'></i> Back to Dashboard
+          to="/dashboard"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-teal-600 mb-6 no-underline transition-colors"
+        >
+          <i className="bi bi-arrow-left"></i> Back to Dashboard
         </Link>
 
-        <div className='row justify-content-center'>
-          <div className='col-lg-8'>
-            <div className='card border-0 shadow-sm rounded-4'>
-              <div className='card-header bg-white border-0 pt-4 pb-0 px-4 px-md-5 d-flex justify-content-between align-items-center'>
-                <h4 className='fw-bold mb-0'>
-                  {isEditing ? "Edit Job Details" : "Create New Job"}
-                </h4>
-              </div>
-              <div className='card-body p-4 p-md-5'>
-                <form onSubmit={handleSubmit}>
-                  <div className='row g-4 mb-4'>
-                    <div className='col-md-6'>
-                      <label className='form-label fw-bold'>Job Title *</label>
-                      <input
-                        type='text'
-                        name='title'
-                        className='form-control bg-light py-2'
-                        placeholder='e.g. Senior React Developer'
-                        value={formData.title}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className='col-md-6'>
-                      <label className='form-label fw-bold'>
-                        Company Name *
-                      </label>
-                      <input
-                        type='text'
-                        name='company'
-                        className='form-control bg-light py-2'
-                        placeholder='e.g. Google, Acme Inc'
-                        value={formData.company}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className='col-md-6'>
-                      <label className='form-label fw-bold'>
-                        Experience Required *
-                      </label>
-                      <select
-                        name='experience'
-                        className='form-select bg-light py-2'
-                        value={formData.experience}
-                        onChange={handleChange}
-                        required>
-                        <option value=''>Select experience</option>
-                        <option value='Fresher'>Fresher</option>
-                        <option value='1-3 Yrs'>1-3 Yrs</option>
-                        <option value='3-5 Yrs'>3-5 Yrs</option>
-                        <option value='5+ Yrs'>5+ Yrs</option>
-                      </select>
-                    </div>
-
-                    <div className='col-md-6'>
-                      <label className='form-label fw-bold'>
-                        Employment Type *
-                      </label>
-                      <select
-                        name='employmentType'
-                        className='form-select bg-light py-2'
-                        value={formData.employmentType}
-                        onChange={handleChange}
-                        required>
-                        <option value=''>Select type</option>
-                        <option value='Full-time'>Full-time</option>
-                        <option value='Part-time'>Part-time</option>
-                        <option value='Contract'>Contract</option>
-                        <option value='Internship'>Internship</option>
-                      </select>
-                    </div>
-
-                    <div className='col-md-6'>
-                      <label className='form-label fw-bold'>Location *</label>
-                      <input
-                        type='text'
-                        name='location'
-                        className='form-control bg-light py-2'
-                        placeholder='e.g. Remote, Bangalore'
-                        value={formData.location}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className='col-md-6'>
-                      <label className='form-label fw-bold'>
-                        Salary (LPA) *
-                      </label>
-                      <input
-                        type='number'
-                        name='salary'
-                        className='form-control bg-light py-2'
-                        placeholder='e.g. 15'
-                        value={formData.salary}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className='col-md-6'>
-                      <label className='form-label fw-bold'>
-                        Application Deadline *
-                      </label>
-                      <input
-                        type='date'
-                        name='deadline'
-                        className='form-control bg-light py-2'
-                        value={formData.deadline}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className='col-md-6'>
-                      <label className='form-label fw-bold'>Skills *</label>
-                      <input
-                        type='text'
-                        name='skills'
-                        className='form-control bg-light py-2'
-                        placeholder='e.g. React, Node (Comma separated)'
-                        value={formData.skills}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    {isEditing && (
-                      <div className='col-md-6'>
-                        <label className='form-label fw-bold'>Status</label>
-                        <select
-                          name='status'
-                          className='form-select bg-light py-2'
-                          value={formData.status}
-                          onChange={handleChange}>
-                          <option value='Active'>Active</option>
-                          <option value='Archived'>Archived</option>
-                        </select>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* AI Assistant Banner */}
-                  <div className='ai-banner bg-primary-subtle text-primary p-4 rounded-4 mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 border border-primary-subtle'>
-                    <div>
-                      <h6 className='fw-bold mb-1'>
-                        <i className='bi bi-magic me-2'></i>AI Job Description
-                        Generator
-                      </h6>
-                      <p className='mb-0 small opacity-75'>
-                        Fill Title, Experience, and Skills, then let AI write a
-                        professional description for you.
-                      </p>
-                    </div>
-                    <button
-                      type='button'
-                      className='btn btn-primary rounded-pill fw-medium text-nowrap px-4'
-                      onClick={handleGenerateDescription}
-                      disabled={aiStatus === "loading"}>
-                      {aiStatus === "loading"
-                        ? "Generating..."
-                        : "Generate with AI"}
-                    </button>
-                  </div>
-
-                  <div className='mb-5'>
-                    <label className='form-label fw-bold'>
-                      Job Description *
-                    </label>
-                    <textarea
-                      name='description'
-                      className='form-control bg-light'
-                      rows='8'
-                      placeholder='Write job description or use AI generator...'
-                      value={formData.description}
-                      onChange={handleChange}
-                      required></textarea>
-                  </div>
-
-                  <div className='d-flex justify-content-end gap-3'>
-                    <Link
-                      to='/dashboard'
-                      className='btn btn-outline-secondary fw-medium px-4 rounded-pill'>
-                      Cancel
-                    </Link>
-                    <button
-                      type='submit'
-                      className='btn btn-primary fw-medium px-5 rounded-pill'
-                      disabled={jobStatus === "loading"}>
-                      {jobStatus === "loading"
-                        ? isEditing
-                          ? "Saving..."
-                          : "Publishing..."
-                        : isEditing
-                          ? "Save Changes"
-                          : "Publish Job"}
-                    </button>
-                  </div>
-                </form>
-              </div>
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-card overflow-hidden">
+          <div className="bg-navy-900 px-6 sm:px-8 py-6 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-300 uppercase tracking-wider mb-1">
+                <i className="bi bi-briefcase-fill"></i>{" "}
+                {isEditing ? "Update Opportunity" : "Talent Acquisition"}
+              </span>
+              <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                {isEditing ? "Edit Job Details" : "Create New Job"}
+              </h1>
             </div>
+            {isEditing && (
+              <span
+                className={`inline-flex items-center self-start sm:self-auto px-3 py-1 rounded-full text-xs font-semibold ${
+                  formData.status === "Active"
+                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-400/30"
+                    : "bg-slate-700 text-slate-300"
+                }`}
+              >
+                Status: {formData.status}
+              </span>
+            )}
+          </div>
+
+          <div className="p-6 sm:p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className={labelClass}>Job Title *</label>
+                  <input
+                    type="text"
+                    name="title"
+                    className={inputClass}
+                    placeholder="e.g. Senior React Developer"
+                    value={formData.title}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass}>Company Name *</label>
+                  <input
+                    type="text"
+                    name="company"
+                    className={inputClass}
+                    placeholder="e.g. Google, Acme Inc"
+                    value={formData.company}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass}>Experience Required *</label>
+                  <select
+                    name="experience"
+                    className={inputClass}
+                    value={formData.experience}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select experience</option>
+                    <option value="Fresher">Fresher</option>
+                    <option value="1-3 Yrs">1-3 Yrs</option>
+                    <option value="3-5 Yrs">3-5 Yrs</option>
+                    <option value="5+ Yrs">5+ Yrs</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className={labelClass}>Employment Type *</label>
+                  <select
+                    name="employmentType"
+                    className={inputClass}
+                    value={formData.employmentType}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select type</option>
+                    <option value="Full-time">Full-time</option>
+                    <option value="Part-time">Part-time</option>
+                    <option value="Contract">Contract</option>
+                    <option value="Internship">Internship</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className={labelClass}>Location *</label>
+                  <input
+                    type="text"
+                    name="location"
+                    className={inputClass}
+                    placeholder="e.g. Remote, Bangalore, Hyderabad"
+                    value={formData.location}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass}>Salary (LPA) *</label>
+                  <input
+                    type="number"
+                    name="salary"
+                    min="1"
+                    step="any"
+                    className={inputClass}
+                    placeholder="e.g. 15"
+                    value={formData.salary}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass}>Application Deadline *</label>
+                  <input
+                    type="date"
+                    name="deadline"
+                    min={!isEditing ? todayStr : undefined}
+                    className={inputClass}
+                    value={formData.deadline}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass}>
+                    Skills (Comma Separated) *
+                  </label>
+                  <input
+                    type="text"
+                    name="skills"
+                    className={inputClass}
+                    placeholder="e.g. React, Node.js, TypeScript, MongoDB"
+                    value={formData.skills}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                {/* Remote Toggle */}
+                <div className="flex items-center pt-2">
+                  <label className="inline-flex items-center gap-3 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      name="remote"
+                      checked={Boolean(formData.remote)}
+                      onChange={handleChange}
+                      className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                    />
+                    <div>
+                      <span className="text-sm font-semibold text-slate-800 block">
+                        Remote Friendly Role
+                      </span>
+                      <span className="text-xs text-slate-500">
+                        Candidates can work remotely for this position
+                      </span>
+                    </div>
+                  </label>
+                </div>
+
+                {isEditing && (
+                  <div>
+                    <label className={labelClass}>Listing Status</label>
+                    <select
+                      name="status"
+                      className={inputClass}
+                      value={formData.status}
+                      onChange={handleChange}
+                    >
+                      <option value="Active">Active</option>
+                      <option value="Archived">Archived</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+
+              {/* AI Job Description Generator Banner */}
+              <div className="rounded-2xl bg-teal-50/80 border border-teal-200 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center shrink-0 text-lg shadow-sm">
+                    <i className="bi bi-magic"></i>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900">
+                      AI Job Description Generator
+                    </h3>
+                    <p className="text-xs text-slate-600 mt-0.5">
+                      Fill in Title, Experience, and Skills above, then let AI draft a structured job description.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleGenerateDescription}
+                  disabled={aiStatus === "loading"}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-xs font-semibold shadow-sm transition-colors whitespace-nowrap"
+                >
+                  {aiStatus === "loading" ? (
+                    <>
+                      <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-stars"></i> Generate with AI
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Job Description Textarea */}
+              <div>
+                <label className={labelClass}>Job Description *</label>
+                <textarea
+                  name="description"
+                  className={`${inputClass} min-h-[200px] leading-relaxed`}
+                  rows="8"
+                  placeholder="Write a comprehensive job description or click 'Generate with AI' above..."
+                  value={formData.description}
+                  onChange={handleChange}
+                  required
+                ></textarea>
+              </div>
+
+              {/* Submit / Cancel Actions */}
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <Link
+                  to="/dashboard"
+                  className="px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold transition-colors no-underline"
+                >
+                  Cancel
+                </Link>
+                <button
+                  type="submit"
+                  disabled={jobStatus === "loading"}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-navy-900 hover:bg-navy-800 disabled:opacity-60 text-white text-sm font-semibold shadow-sm transition-colors"
+                >
+                  {jobStatus === "loading"
+                    ? isEditing
+                      ? "Saving..."
+                      : "Publishing..."
+                    : isEditing
+                      ? "Save Changes"
+                      : "Publish Job"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

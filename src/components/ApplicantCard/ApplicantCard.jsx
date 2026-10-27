@@ -1,99 +1,216 @@
-import React from "react";
+import React, { useState } from "react";
 import "./ApplicantCard.css";
 
-const ApplicantCard = ({ application, onStatusChange }) => {
-  const applicant = application.applicant;
+const normalizeExternalUrl = (url) => {
+  if (!url || typeof url !== "string") return "";
+  const trimmed = url.trim();
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+};
 
-  const getStatusBadgeClass = (status) => {
+const ApplicantCard = ({ application, onStatusChange }) => {
+  const [updatingStatus, setUpdatingStatus] = useState(null);
+  const [imgError, setImgError] = useState(false);
+  const applicant = application?.applicant || {};
+
+  const resumeUrl = normalizeExternalUrl(
+    application?.resume || applicant?.resume,
+  );
+  const appliedDate = application?.appliedAt || application?.createdAt;
+  const jobTitle = application?.job?.title;
+
+  const getStatusBadgeClasses = (status) => {
     switch (status) {
-      case "Shortlisted": return "bg-success-subtle text-success border-success";
-      case "Rejected": return "bg-danger-subtle text-danger border-danger";
-      case "Withdrawn": return "bg-warning-subtle text-warning border-warning";
-      default: return "bg-primary-subtle text-primary border-primary";
+      case "Shortlisted":
+        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+      case "Rejected":
+        return "bg-red-50 text-red-700 border-red-200";
+      case "Withdrawn":
+        return "bg-amber-50 text-amber-800 border-amber-200";
+      default:
+        return "bg-slate-100 text-navy-900 border-slate-200";
     }
   };
 
+  const handleAction = async (nextStatus) => {
+    if (!onStatusChange || updatingStatus) return;
+    try {
+      setUpdatingStatus(nextStatus);
+      await onStatusChange(application._id, nextStatus);
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
+
+  const cleanSkills = Array.isArray(applicant?.skills)
+    ? applicant.skills
+        .flatMap((s) => (typeof s === "string" ? s.split(",") : []))
+        .map((s) => s.replace(/,$/, "").trim())
+        .filter(Boolean)
+    : [];
+
   return (
-    <div className="card applicant-card shadow-sm border-0 mb-3">
-      <div className="card-body p-4">
-        <div className="row align-items-center">
-          
-          {/* Profile Info */}
-          <div className="col-md-4 d-flex align-items-center gap-3 mb-3 mb-md-0">
-            <div className="applicant-avatar bg-light text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center">
-              {applicant?.name?.charAt(0).toUpperCase()}
+    <div className="applicant-card bg-white rounded-xl border border-slate-200 shadow-card hover:shadow-card-hover transition-all p-4 sm:p-5 mb-3.5">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        {/* Candidate Identity */}
+        <div className="flex items-start sm:items-center gap-3.5 min-w-0 lg:w-4/12">
+          {applicant?.photo && !imgError ? (
+            <img
+              src={applicant.photo}
+              alt={applicant?.name || "Candidate"}
+              className="w-12 h-12 rounded-full object-cover border border-slate-200 flex-shrink-0"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-navy-900 text-white font-display font-bold text-lg flex items-center justify-center flex-shrink-0">
+              {applicant?.name?.charAt(0).toUpperCase() || "A"}
             </div>
-            <div>
-              <h5 className="mb-1 fw-bold">{applicant?.name}</h5>
-              <p className="text-muted mb-0 small">{applicant?.email}</p>
-            </div>
-          </div>
-
-          {/* Details */}
-          <div className="col-md-3 mb-3 mb-md-0">
-            <div className="d-flex flex-column gap-1">
-              <span className="small text-muted"><i className="bi bi-briefcase me-1"></i> {applicant?.experience || "N/A"}</span>
-              <span className="small text-muted"><i className="bi bi-book me-1"></i> {applicant?.education || "N/A"}</span>
-            </div>
-          </div>
-
-          {/* Resume & Status */}
-          <div className="col-md-2 mb-3 mb-md-0">
-            <div className="d-flex flex-column gap-2 align-items-start">
-              {application.resume ? (
-                <a href={application.resume} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-primary rounded-pill">
-                  <i className="bi bi-file-earmark-pdf me-1"></i> Resume
-                </a>
-              ) : (
-                <span className="text-muted small">No Resume</span>
-              )}
-              <span className={`badge border px-2 py-1 rounded-pill ${getStatusBadgeClass(application.status)}`}>
-                {application.status === "Withdrawn" ? "Withdrawn by Candidate" : application.status}
+          )}
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h4 className="font-display text-base font-bold text-slate-900 truncate m-0">
+                {applicant?.name || "Applicant"}
+              </h4>
+              <span
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${getStatusBadgeClasses(
+                  application?.status,
+                )}`}>
+                {application?.status === "Withdrawn"
+                  ? "Withdrawn by Candidate"
+                  : application?.status === "New"
+                    ? "Applied"
+                    : application?.status}
               </span>
             </div>
-          </div>
-
-          {/* Actions */}
-          <div className="col-md-3 text-md-end">
-            {application.status === "Withdrawn" ? (
-              <span className="badge bg-secondary-subtle text-secondary border px-3 py-2 rounded-pill small">
-                <i className="bi bi-info-circle me-1"></i> Withdrawn
-              </span>
-            ) : (
-              <div className="btn-group">
-                <button 
-                  className="btn btn-outline-success btn-sm fw-medium"
-                  onClick={() => onStatusChange(application._id, "Shortlisted")}
-                  disabled={application.status === "Shortlisted"}
-                >
-                  Shortlist
-                </button>
-                <button 
-                  className="btn btn-outline-danger btn-sm fw-medium"
-                  onClick={() => onStatusChange(application._id, "Rejected")}
-                  disabled={application.status === "Rejected"}
-                >
-                  Reject
-                </button>
-              </div>
+            <p className="text-xs text-slate-500 truncate mt-0.5 mb-0">
+              {applicant?.email || "No email provided"}
+            </p>
+            {jobTitle && (
+              <p className="text-xs font-medium text-brand-700 mt-1 mb-0">
+                <i className="bi bi-briefcase me-1"></i>
+                Applied for: <span className="font-semibold">{jobTitle}</span>
+              </p>
             )}
           </div>
-
         </div>
 
-        {/* Skills Tags */}
-        {applicant?.skills && applicant.skills.length > 0 && (
-          <div className="mt-3 pt-3 border-top d-flex flex-wrap gap-2">
-            {applicant.skills.map((skill, index) => {
-              const cleanSkill = skill.replace(/,$/, "").trim();
-              if (!cleanSkill) return null;
-              return (
-                <span key={index} className="badge bg-light text-secondary border fw-normal rounded-pill px-2 py-1">
-                  {cleanSkill}
+        {/* Experience, Education & Application Date (PRD Required) */}
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-x-6 gap-y-2 text-xs text-slate-600 lg:w-4/12">
+          <div className="space-y-1">
+            <div className="flex items-center gap-1.5">
+              <i className="bi bi-briefcase text-slate-400"></i>
+              <span className="font-medium text-slate-700">Experience:</span>
+              <span>{applicant?.experience || "Fresher / Not specified"}</span>
+            </div>
+            {applicant?.education && (
+              <div className="flex items-center gap-1.5">
+                <i className="bi bi-mortarboard text-slate-400"></i>
+                <span className="font-medium text-slate-700">Education:</span>
+                <span className="truncate max-w-[200px]">
+                  {applicant.education}
                 </span>
-              );
-            })}
+              </div>
+            )}
+            <div className="flex items-center gap-1.5 text-slate-500">
+              <i className="bi bi-calendar3 text-slate-400"></i>
+              <span>
+                Applied:{" "}
+                {appliedDate
+                  ? new Date(appliedDate).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : "Recently"}
+              </span>
+            </div>
           </div>
+        </div>
+
+        {/* Resume Link & Status Actions */}
+        <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2.5 lg:w-4/12 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100">
+          {resumeUrl ? (
+            <a
+              href={resumeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition-colors no-underline">
+              <i className="bi bi-file-earmark-text text-brand-600"></i>
+              <span>View Resume</span>
+              <i className="bi bi-box-arrow-up-right text-[10px] text-slate-400"></i>
+            </a>
+          ) : (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 bg-slate-50 border border-slate-100">
+              <i className="bi bi-file-earmark-x"></i>
+              <span>No Resume</span>
+            </span>
+          )}
+
+          {application?.status === "Withdrawn" ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+              <i className="bi bi-info-circle"></i>
+              <span>Withdrawn by Candidate</span>
+            </span>
+          ) : (
+            <div className="inline-flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleAction("Shortlisted")}
+                disabled={
+                  application?.status === "Shortlisted" ||
+                  Boolean(updatingStatus)
+                }
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+                  application?.status === "Shortlisted"
+                    ? "bg-emerald-600 text-white border-emerald-600 cursor-default"
+                    : "bg-white text-emerald-700 border-emerald-300 hover:bg-emerald-50"
+                }`}>
+                <i className="bi bi-check2-circle mr-1"></i>
+                {updatingStatus === "Shortlisted"
+                  ? "Saving..."
+                  : application?.status === "Shortlisted"
+                    ? "Shortlisted"
+                    : "Shortlist"}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAction("Rejected")}
+                disabled={
+                  application?.status === "Rejected" || Boolean(updatingStatus)
+                }
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+                  application?.status === "Rejected"
+                    ? "bg-red-600 text-white border-red-600 cursor-default"
+                    : "bg-white text-red-600 border-red-300 hover:bg-red-50"
+                }`}>
+                <i className="bi bi-x-circle mr-1"></i>
+                {updatingStatus === "Rejected"
+                  ? "Saving..."
+                  : application?.status === "Rejected"
+                    ? "Rejected"
+                    : "Reject"}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Skills Row */}
+      <div className="mt-3.5 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-1.5">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mr-1">
+          Skills:
+        </span>
+        {cleanSkills.length > 0 ? (
+          cleanSkills.map((skill, index) => (
+            <span
+              key={index}
+              className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200/80">
+              {skill}
+            </span>
+          ))
+        ) : (
+          <span className="text-xs text-slate-400 italic">Not specified</span>
         )}
       </div>
     </div>

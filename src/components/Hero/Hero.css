@@ -1,42 +1,4 @@
-.hero-search-form {
-  box-sizing: border-box;
-  gap: 4px;
-}
-
-.hero-search-form .form-control {
-  flex: 1 1 0%;
-  width: 0;
-  min-width: 0;
-  padding: 0.5rem 0.25rem;
-  font-size: 1rem;
-}
-
-.hero-search-form .form-control::placeholder {
-  color: #64748b;
-  opacity: 1;
-}
-
-.hero-search-form button {
-  min-width: 0 !important;
-  white-space: nowrap;
-  line-height: 1.5;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-
-@media (max-width: 400px) {
-  .hero-search-form {
-    padding: 6px !important;
-    gap: 2px;
-  }
-
-  .hero-search-form .form-control {
-    font-size: 0.875rem;
-  }
-
-  .hero-search-form button {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-    font-size: 0.875rem;
-  }
+/* Hero search input focus helper */
+.hero-search-form:focus-within {
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.25);
 }

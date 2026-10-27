@@ -3,7 +3,7 @@
 ---
 
 A MERN Stack AI-powered hiring platform connecting recruiters and applicants. Recruiters can post jobs, manage applications, and use an AI Hiring Assistant. Applicants can browse jobs, bookmark them, apply, and generate AI-driven interview preparation materials. <br>
-Built with a Express/Node backend, MongoDB database, and OpenRouter AI integration.
+Built with an Express/Node backend, MongoDB database, Tailwind CSS v3.4 UI, and OpenRouter AI integration.
 
 ---
 
@@ -28,6 +28,7 @@ npm run start  # or `npm run dev` with nodemon
 
 - React
 - Redux Toolkit (RTK)
+- Tailwind CSS v3.4
 - Node.js
 - Express.js
 - MongoDB & Mongoose
@@ -171,7 +172,7 @@ PORT=5001
 NODE_ENV=development
 
 # Database
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/talenthub
+MONGO_URL=mongodb+srv://<username>:<password>@cluster.mongodb.net/talenthub
 
 # JWT Authentication
 JWT_SECRET=your_jwt_secret_key

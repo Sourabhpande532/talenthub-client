@@ -6,14 +6,14 @@ import { FeaturedJob } from "../../components/FeaturedJob/FeaturedJob";
 
 const Landing = () => {
   return (
-    <div className='landing-page'>
+    <main className="landing-page">
       {/* Hero section */}
       <Hero />
-      {/* Featured Jobs Section */}
+      {/* Hiring Companies, Featured Jobs & Recently Posted Jobs */}
       <FeaturedJob />
-      {/* Stats/Features Section */}
+      {/* Platform Capabilities Section */}
       <FeatureStats />
-    </div>
+    </main>
   );
 };
 

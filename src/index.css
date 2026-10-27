@@ -1,42 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
-  --primary-color: #0f172a;
-  --primary-hover: #1e293b;
+  --primary-color: #121932;
+  --primary-hover: #1c263f;
   --accent-color: #0d9488;
   --accent-hover: #0f766e;
   --body-bg: #f8fafc;
   --card-bg: #ffffff;
   --text-main: #0f172a;
-  --text-muted: #64748b;
+  --text-muted: #475569;
   --border-subtle: #e2e8f0;
-
-  /* Bootstrap Variable Overrides */
-  --bs-primary: #0f172a;
-  --bs-primary-rgb: 15, 23, 42;
-  --bs-link-color: #0d9488;
-  --bs-link-hover-color: #0f766e;
 }
 
-body {
-  margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--body-bg);
-  color: var(--text-main);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      Helvetica, Arial, sans-serif;
+    background-color: var(--body-bg);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-display {
+    font-family: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont,
+      sans-serif;
+  }
 }
 
 code {
-  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-}
-
-[data-bs-theme="dark"] body {
-  background-color: #0f172a;
-  color: #f1f5f9;
-}
-
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+  font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
 }
 
 /* Custom scrollbar */
@@ -48,102 +57,19 @@ html {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(13, 148, 136, 0.25);
+  background: rgba(18, 25, 50, 0.25);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(13, 148, 136, 0.5);
+  background: rgba(13, 148, 136, 0.6);
 }
 
-/* Button enhancements */
-.btn {
-  font-weight: 500;
-  transition: all 0.2s ease-in-out;
-  border-radius: 0.5rem;
-}
-.btn:active {
-  transform: scale(0.98);
-}
-
-.btn-primary {
-  background-color: #0f172a !important;
-  border-color: #0f172a !important;
-  color: #ffffff !important;
-}
-.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
-  background-color: #1e293b !important;
-  border-color: #1e293b !important;
-  color: #ffffff !important;
-}
-
-.btn-outline-primary {
-  color: #0f172a !important;
-  border-color: #0f172a !important;
-}
-.btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
-  background-color: #0f172a !important;
-  border-color: #0f172a !important;
-  color: #ffffff !important;
-}
-
-.btn-accent {
-  background-color: #0d9488 !important;
-  border-color: #0d9488 !important;
-  color: #ffffff !important;
-}
-.btn-accent:hover, .btn-accent:focus, .btn-accent:active {
-  background-color: #0f766e !important;
-  border-color: #0f766e !important;
-  color: #ffffff !important;
-}
-
-/* Primary Utility Overrides */
-.text-primary {
-  color: #0f172a !important;
-}
-.bg-primary {
-  background-color: #0f172a !important;
-}
-.bg-primary-subtle {
-  background-color: #f1f5f9 !important;
-  color: #0f172a !important;
-}
-.border-primary {
-  border-color: #0f172a !important;
-}
-.border-primary-subtle {
-  border-color: #cbd5e1 !important;
-}
-
-/* Accent Utility Helpers */
-.text-accent {
-  color: #0d9488 !important;
-}
-.bg-accent {
-  background-color: #0d9488 !important;
-  color: #ffffff !important;
-}
-.bg-accent-subtle {
-  background-color: #ccfbf1 !important;
-  color: #0f766e !important;
-}
-
-/* Card global enhancements */
-.card {
-  border-radius: 0.875rem !important;
-  border: 1px solid var(--border-subtle) !important;
-  background-color: var(--card-bg);
-}
-
-.badge {
-  font-weight: 500;
-  letter-spacing: 0.01em;
-}
-
-/* Prevent horizontal overflow globally */
-html, body {
-  max-width: 100vw;
-  overflow-x: hidden;
+/* Hide native browser password reveal & clear icons (Edge / Chrome) to avoid duplicate eye icons */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none !important;
+  width: 0;
+  height: 0;
 }
 
 /* Image responsiveness */
@@ -155,12 +81,4 @@ img {
 /* Cursor helper */
 .cursor-pointer {
   cursor: pointer;
-}
-
-/* Hide native browser password reveal & clear icons (e.g., in Edge / Chrome) to avoid duplicate eye icons */
-input::-ms-reveal,
-input::-ms-clear {
-  display: none !important;
-  width: 0;
-  height: 0;
 }

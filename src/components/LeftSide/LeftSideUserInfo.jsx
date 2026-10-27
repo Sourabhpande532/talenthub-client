@@ -1,57 +1,113 @@
+import React from "react";
 import { Link } from "react-router-dom";
+import "./LeftSideUserInfo.css";
 
 export const LeftSideUserInfo = ({ role, setRole }) => {
   return (
-    <div className='col-lg-4 bg-primary text-white p-5 d-none d-lg-flex flex-column justify-content-center position-relative'>
-      <h2 className='fw-bold mb-4'>Create your account</h2>
-      <p className='mb-4 opacity-75'>
-        Join TalentHub and take the next step in your career or hiring journey.
-      </p>
-
-      <div className='mt-4'>
-        <p className='fw-medium mb-2'>I want to register as</p>
-
-        <div
-          className={`role-select-card mb-3 p-3 rounded-3 border border-2 ${role === "Applicant" ? "border-white bg-white text-primary" : "border-light text-white"}`}
-          style={{ cursor: "pointer", transition: "all 0.2s" }}
-          onClick={() => setRole("Applicant")}>
-          <div className='d-flex justify-content-between align-items-center'>
-            <div className='d-flex align-items-center gap-3'>
-              <i className='bi bi-person-workspace fs-3'></i>
-              <div>
-                <h6 className='mb-0 fw-bold'>Applicant</h6>
-                <small className='opacity-75'>
-                  Find jobs, apply and manage
-                </small>
-              </div>
-            </div>
-            <i
-              className={`bi ${role === "Applicant" ? "bi-check-circle-fill" : "bi-circle"} fs-5`}></i>
-          </div>
+    <div className="hidden lg:flex lg:col-span-5 bg-navy-900 text-white p-8 xl:p-10 flex-col justify-between relative overflow-hidden">
+      <div>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-navy-800 border border-navy-700 text-brand-300 text-xs font-semibold mb-6">
+          <i className="bi bi-briefcase-fill text-brand-400"></i>
+          <span>TalentHub Onboarding</span>
         </div>
 
-        <div
-          className={`role-select-card p-3 rounded-3 border border-2 ${role === "Recruiter" ? "border-white bg-white text-primary" : "border-light text-white"}`}
-          style={{ cursor: "pointer", transition: "all 0.2s" }}
-          onClick={() => setRole("Recruiter")}>
-          <div className='d-flex justify-content-between align-items-center'>
-            <div className='d-flex align-items-center gap-3'>
-              <i className='bi bi-building fs-3'></i>
-              <div>
-                <h6 className='mb-0 fw-bold'>Recruiter</h6>
-                <small className='opacity-75'>Post jobs, find talent</small>
+        <h1 className="font-display text-2xl xl:text-3xl font-bold text-white mb-3">
+          Create your account
+        </h1>
+        <p className="text-sm text-slate-300 leading-relaxed mb-8">
+          Join TalentHub to discover verified tech opportunities, prepare with
+          AI interview guides, or hire top engineering talent.
+        </p>
+
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
+            I want to register as
+          </p>
+
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={() => setRole("Applicant")}
+              className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-center justify-between gap-3 ${
+                role === "Applicant"
+                  ? "bg-white text-navy-900 border-white shadow-md"
+                  : "bg-navy-800/60 text-white border-navy-700 hover:border-slate-500"
+              }`}>
+              <div className="flex items-center gap-3.5">
+                <div
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${
+                    role === "Applicant"
+                      ? "bg-brand-50 text-brand-700"
+                      : "bg-navy-700 text-slate-200"
+                  }`}>
+                  <i className="bi bi-person-workspace"></i>
+                </div>
+                <div>
+                  <h2 className="font-display text-sm font-bold m-0">
+                    Applicant
+                  </h2>
+                  <p
+                    className={`text-xs m-0 mt-0.5 ${
+                      role === "Applicant" ? "text-slate-600" : "text-slate-300"
+                    }`}>
+                    Find jobs, apply, and prepare with AI
+                  </p>
+                </div>
               </div>
-            </div>
-            <i
-              className={`bi ${role === "Recruiter" ? "bi-check-circle-fill" : "bi-circle"} fs-5`}></i>
+              <i
+                className={`bi text-lg ${
+                  role === "Applicant"
+                    ? "bi-check-circle-fill text-brand-600"
+                    : "bi-circle text-slate-400"
+                }`}></i>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setRole("Recruiter")}
+              className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-center justify-between gap-3 ${
+                role === "Recruiter"
+                  ? "bg-white text-navy-900 border-white shadow-md"
+                  : "bg-navy-800/60 text-white border-navy-700 hover:border-slate-500"
+              }`}>
+              <div className="flex items-center gap-3.5">
+                <div
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${
+                    role === "Recruiter"
+                      ? "bg-brand-50 text-brand-700"
+                      : "bg-navy-700 text-slate-200"
+                  }`}>
+                  <i className="bi bi-building"></i>
+                </div>
+                <div>
+                  <h2 className="font-display text-sm font-bold m-0">
+                    Recruiter
+                  </h2>
+                  <p
+                    className={`text-xs m-0 mt-0.5 ${
+                      role === "Recruiter" ? "text-slate-600" : "text-slate-300"
+                    }`}>
+                    Post jobs, manage & evaluate talent
+                  </p>
+                </div>
+              </div>
+              <i
+                className={`bi text-lg ${
+                  role === "Recruiter"
+                    ? "bi-check-circle-fill text-brand-600"
+                    : "bi-circle text-slate-400"
+                }`}></i>
+            </button>
           </div>
         </div>
       </div>
 
-      <div className='mt-auto pt-5'>
-        <p className='small mb-0'>
+      <div className="pt-8 mt-8 border-t border-navy-800">
+        <p className="text-sm text-slate-300 m-0">
           Already have an account?{" "}
-          <Link to='/login' className='text-white fw-bold'>
+          <Link
+            to="/login"
+            className="text-brand-300 hover:text-white font-semibold underline">
             Login here
           </Link>
         </p>
