@@ -6,11 +6,15 @@ import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
 
 function useLogin() {
+  const savedRememberedEmail =
+    typeof window !== "undefined"
+      ? localStorage.getItem("remembered_email") || ""
+      : "";
   const [formData, setFormData] = useState({
-    email: "",
+    email: savedRememberedEmail,
     password: "",
   });
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(Boolean(savedRememberedEmail));
   const { status, token } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -36,6 +40,11 @@ function useLogin() {
     if (formData.password.length < 6) {
       toast.error("Password must be at least 6 characters long.");
       return;
+    }
+    if (rememberMe) {
+      localStorage.setItem("remembered_email", formData.email.trim());
+    } else {
+      localStorage.removeItem("remembered_email");
     }
     dispatch(loginUser(formData));
   };

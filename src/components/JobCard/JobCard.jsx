@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { addBookmark, removeBookmark } from "../../features/user/userSlice";
 import { setUser } from "../../features/auth/authSlice";
+import { resolveImageUrl } from "../../utils/urlHelper";
 import "./JobCard.css";
 
 const formatExperience = (exp) => {
@@ -26,7 +27,18 @@ const JobCard = ({ job, isBookmarked, onBookmarkToggle, hideBookmark }) => {
     job?.companyName ||
     job?.recruiter?.companyName ||
     "Company";
-  const companyLogo = job?.recruiter?.companyLogo || "";
+  const isOwnRecruiterJob =
+    user?.role === "Recruiter" &&
+    job?.recruiter &&
+    (job.recruiter._id === user._id || job.recruiter === user._id);
+  const companyLogo = resolveImageUrl(
+    job?.recruiter?.companyLogo ||
+      (isOwnRecruiterJob ? user?.companyLogo : ""),
+  );
+
+  useEffect(() => {
+    setLogoError(false);
+  }, [companyLogo]);
 
   const computedBookmarked =
     isBookmarked !== undefined
@@ -92,6 +104,7 @@ const JobCard = ({ job, isBookmarked, onBookmarkToggle, hideBookmark }) => {
               <img
                 src={companyLogo}
                 alt={companyName}
+                referrerPolicy="no-referrer"
                 className="w-11 h-11 rounded-lg object-cover border border-slate-200 flex-shrink-0 bg-slate-50"
                 onError={() => setLogoError(true)}
               />

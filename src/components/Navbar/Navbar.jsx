@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import { logout } from "../../features/auth/authSlice";
+import { resolveImageUrl } from "../../utils/urlHelper";
 
 const Navbar = () => {
   const { token, user } = useSelector((state) => state.auth);
@@ -51,8 +52,9 @@ const Navbar = () => {
 
   const isActive = (path) => location.pathname === path;
   const bookmarkCount = user?.bookmarks?.length || 0;
-  const avatarUrl =
+  const rawAvatarUrl =
     user?.role === "Recruiter" ? user?.companyLogo : user?.photo;
+  const avatarUrl = resolveImageUrl(rawAvatarUrl);
 
   useEffect(() => {
     setAvatarError(false);
@@ -114,19 +116,6 @@ const Navbar = () => {
                 </Link>
               </li>
             )}
-            {token && user?.role === "Recruiter" && (
-              <li>
-                <Link
-                  to="/create-job"
-                  className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors no-underline ${
-                    isActive("/create-job")
-                      ? "bg-slate-100 text-navy-900 font-semibold"
-                      : "text-slate-600 hover:text-navy-900 hover:bg-slate-50"
-                  }`}>
-                  Post a Job
-                </Link>
-              </li>
-            )}
           </ul>
         </div>
 
@@ -170,6 +159,7 @@ const Navbar = () => {
                     <img
                       src={avatarUrl}
                       alt={user?.name || "User"}
+                      referrerPolicy="no-referrer"
                       className="w-8 h-8 rounded-full object-cover border border-slate-200"
                       onError={() => setAvatarError(true)}
                     />
@@ -352,6 +342,7 @@ const Navbar = () => {
                       <img
                         src={avatarUrl}
                         alt={user?.name || "User"}
+                        referrerPolicy="no-referrer"
                         className="w-8 h-8 rounded-full object-cover border border-slate-200 flex-shrink-0"
                         onError={() => setAvatarError(true)}
                       />

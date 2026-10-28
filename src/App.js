@@ -19,7 +19,7 @@ const Profile = lazy(() => import("./pages/Profile/Profile"));
 const CreateJob = lazy(() => import("./pages/CreateJob/CreateJob"));
 
 const PageLoader = () => (
-  <div className="min-h-[70vh] flex flex-col items-center justify-center bg-slate-50 p-6">
+  <div className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center bg-slate-50 p-6">
     <span className="inline-block w-9 h-9 border-4 border-teal-600 border-t-transparent rounded-full animate-spin mb-3"></span>
     <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
       Loading TalentHub...
@@ -28,7 +28,7 @@ const PageLoader = () => (
 );
 
 const NotFound = () => (
-  <div className="min-h-[70vh] flex flex-col items-center justify-center bg-slate-50 px-4 py-12 text-center">
+  <div className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center bg-slate-50 px-4 py-12 text-center">
     <div className="w-16 h-16 rounded-2xl bg-navy-900 text-white flex items-center justify-center text-2xl mb-4 shadow-sm">
       <i className="bi bi-compass"></i>
     </div>
@@ -70,7 +70,7 @@ function App() {
         />
         <ToastContainer position="top-right" autoClose={3000} />
 
-        <main className="flex-1">
+        <main className="flex-1 flex flex-col">
           <Suspense fallback={<PageLoader />}>
             <Routes>
               {/* Public Routes */}

@@ -12,6 +12,7 @@ import {
   fetchJobById,
   updateJob,
 } from "../../features/jobs/jobSlice";
+import { resolveImageUrl } from "../../utils/urlHelper";
 
 const CreateJob = () => {
   const { id } = useParams();
@@ -19,9 +20,12 @@ const CreateJob = () => {
 
   const todayStr = new Date().toISOString().split("T")[0];
 
+  const { user } = useSelector((state) => state.auth);
+  const [logoError, setLogoError] = useState(false);
+
   const [formData, setFormData] = useState({
     title: "",
-    company: "",
+    company: user?.companyName || "",
     experience: "",
     location: "",
     employmentType: "",
@@ -37,6 +41,14 @@ const CreateJob = () => {
   const { status: aiStatus } = useSelector((state) => state.ai);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const companyLogoUrl = resolveImageUrl(
+    (isEditing && currentJob?.recruiter?.companyLogo) || user?.companyLogo,
+  );
+
+  useEffect(() => {
+    setLogoError(false);
+  }, [companyLogoUrl]);
 
   useEffect(() => {
     if (isEditing) {
@@ -161,14 +173,31 @@ const CreateJob = () => {
 
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-card overflow-hidden">
           <div className="bg-navy-900 px-6 sm:px-8 py-6 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-300 uppercase tracking-wider mb-1">
-                <i className="bi bi-briefcase-fill"></i>{" "}
-                {isEditing ? "Update Opportunity" : "Talent Acquisition"}
-              </span>
-              <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-                {isEditing ? "Edit Job Details" : "Create New Job"}
-              </h1>
+            <div className="flex items-center gap-4 min-w-0">
+              {companyLogoUrl && !logoError ? (
+                <img
+                  src={companyLogoUrl}
+                  alt={formData.company || user?.companyName || "Company Logo"}
+                  referrerPolicy="no-referrer"
+                  onError={() => setLogoError(true)}
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover border border-white/20 bg-white flex-shrink-0 shadow-sm"
+                />
+              ) : (
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-teal-600 text-white font-display font-bold text-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                  {(formData.company || user?.companyName || "C")
+                    .charAt(0)
+                    .toUpperCase()}
+                </div>
+              )}
+              <div className="min-w-0">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-300 uppercase tracking-wider mb-1">
+                  <i className="bi bi-briefcase-fill"></i>{" "}
+                  {isEditing ? "Update Opportunity" : "Talent Acquisition"}
+                </span>
+                <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight truncate m-0">
+                  {isEditing ? "Edit Job Details" : "Create New Job"}
+                </h1>
+              </div>
             </div>
             {isEditing && (
               <span

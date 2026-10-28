@@ -67,12 +67,12 @@ const buildClientHiringFallback = (job, applications = [], question = "") => {
   });
 
   if (qLower.includes("summarize") || qLower.includes("all")) {
-    return `Applicant Summary for ${jobTitle} (${evaluated.length} total):\n\n${evaluated
+    return `### Applicant Summary for ${jobTitle} (${evaluated.length} total)\n\n${evaluated
       .map(
-        (c, i) =>
-          `${i + 1}. ${c.name} [${c.status === "New" ? "Applied" : c.status}] — Experience: ${c.experience} | Education: ${c.education} | Skills: ${c.skills.join(", ") || "Not specified"}`,
+        (c) =>
+          `- **Name**: ${c.name} (${c.status === "New" ? "Applied" : c.status})\n- **Experience**: ${c.experience}\n- **Education**: ${c.education}\n- **Skills**: ${c.skills.join(", ") || "Not specified"}`,
       )
-      .join("\n")}`;
+      .join("\n\n")}`;
   }
 
   const active = evaluated
@@ -80,16 +80,16 @@ const buildClientHiringFallback = (job, applications = [], question = "") => {
     .sort((a, b) => b.score - a.score);
 
   if (active.length === 0) {
-    return `All ${evaluated.length} applicant(s) for ${jobTitle} have withdrawn their applications.`;
+    return `All ${evaluated.length} applicant(s) for **${jobTitle}** have withdrawn their applications.`;
   }
 
   const top = active.slice(0, 3);
-  return `Candidate Analysis for ${jobTitle} (based on ${active.length} active applicant${active.length === 1 ? "" : "s"}):\n\n${top
+  return `### Candidate Analysis for ${jobTitle}\n\n${top
     .map(
       (c, i) =>
-        `${i + 1}. ${c.name} (${c.status === "New" ? "Applied" : c.status})\n   • Experience: ${c.experience} | Education: ${c.education}\n   • Skills: ${c.skills.join(", ") || "Not specified"}${c.matched.length ? `\n   • Matching Job Skills: ${c.matched.join(", ")}` : ""}`,
+        `${i + 1}. **${c.name}** (${c.status === "New" ? "Applied" : c.status}) — **Experience**: ${c.experience} | **Education**: ${c.education} | **Skills**: ${c.skills.join(", ") || "Not specified"}${c.matched.length ? ` | **Matching Role Skills**: ${c.matched.join(", ")}` : ""}`,
     )
-    .join("\n\n")}\n\nRecommended Next Step: Schedule an initial technical screen with ${top[0].name} based on profile alignment.`;
+    .join("\n")}\n\n**Recommended Next Step**: Schedule an initial technical screen with **${top[0].name}** based on profile alignment.`;
 };
 
 const buildClientJobDescFallback = ({ title, skills, experience }) => {
@@ -122,7 +122,11 @@ export const generateInterviewPrep = createAsyncThunk(
   "ai/generateInterviewPrep",
   async (jobId, { getState, rejectWithValue }) => {
     try {
-      const response = await API_URL.post("/api/ai/interview-prep", { jobId });
+      const response = await API_URL.post(
+        "/api/ai/interview-prep",
+        { jobId },
+        { timeout: 14000 },
+      );
       return response.data.data;
     } catch (error) {
       const state = getState();
@@ -144,10 +148,14 @@ export const askHiringAssistant = createAsyncThunk(
   "ai/askHiringAssistant",
   async ({ jobId, question }, { getState, rejectWithValue }) => {
     try {
-      const response = await API_URL.post("/api/ai/hiring-assistant", {
-        jobId,
-        question,
-      });
+      const response = await API_URL.post(
+        "/api/ai/hiring-assistant",
+        {
+          jobId,
+          question,
+        },
+        { timeout: 14000 },
+      );
       return response.data.data;
     } catch (error) {
       const state = getState();
@@ -173,11 +181,15 @@ export const generateJobDescription = createAsyncThunk(
   "ai/generateJobDescription",
   async ({ title, skills, experience }, { rejectWithValue }) => {
     try {
-      const response = await API_URL.post("/api/ai/generate-job-description", {
-        title,
-        skills,
-        experience,
-      });
+      const response = await API_URL.post(
+        "/api/ai/generate-job-description",
+        {
+          title,
+          skills,
+          experience,
+        },
+        { timeout: 14000 },
+      );
       return response.data.data;
     } catch (error) {
       if (title) {

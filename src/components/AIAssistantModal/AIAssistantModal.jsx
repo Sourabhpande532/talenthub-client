@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import "./AIAssistantModal.css";
 import { askHiringAssistant } from "../../features/ai/aiSlice";
+import { MarkdownRenderer } from "../MarkdownRenderer/MarkdownRenderer";
 
 const PREDEFINED_PROMPTS = [
   "Suggest the top 3 candidates.",
@@ -153,9 +154,7 @@ const AIAssistantModal = ({ jobId, jobTitle, isOpen = false, onClose }) => {
 
             {status === "succeeded" && hiringAssistantResult && (
               <div className="ai-response-content text-sm text-slate-800 leading-relaxed">
-                <pre className="m-0 whitespace-pre-wrap break-words font-sans">
-                  {hiringAssistantResult}
-                </pre>
+                <MarkdownRenderer content={hiringAssistantResult} />
               </div>
             )}
 

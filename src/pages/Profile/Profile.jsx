@@ -3,6 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { setUser } from "../../features/auth/authSlice";
 import { fetchProfile, updateProfile } from "../../features/user/userSlice";
+import {
+  isValidOptionalUrl,
+  normalizeOptionalUrl,
+  resolveImageUrl,
+} from "../../utils/urlHelper";
 import "./Profile.css";
 
 const Profile = () => {
@@ -27,30 +32,40 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [imgError, setImgError] = useState(false);
 
+  const syncFormWithUser = (targetUser) => {
+    if (!targetUser) return;
+    setFormData({
+      name: targetUser.name || "",
+      photo: targetUser.photo || "",
+      bio: targetUser.bio || "",
+      experience: targetUser.experience || "",
+      education: targetUser.education || "",
+      skills: Array.isArray(targetUser.skills)
+        ? targetUser.skills.join(", ")
+        : targetUser.skills || "",
+      companyName: targetUser.companyName || "",
+      companyLogo: targetUser.companyLogo || "",
+      website: targetUser.website || "",
+      aboutCompany: targetUser.aboutCompany || "",
+      resume: targetUser.resume || "",
+    });
+    setImgError(false);
+  };
+
   useEffect(() => {
     dispatch(fetchProfile());
   }, [dispatch]);
 
   useEffect(() => {
-    if (user) {
-      setFormData({
-        name: user.name || "",
-        photo: user.photo || "",
-        bio: user.bio || "",
-        experience: user.experience || "",
-        education: user.education || "",
-        skills: Array.isArray(user.skills)
-          ? user.skills.join(", ")
-          : user.skills || "",
-        companyName: user.companyName || "",
-        companyLogo: user.companyLogo || "",
-        website: user.website || "",
-        aboutCompany: user.aboutCompany || "",
-        resume: user.resume || "",
-      });
-      setImgError(false);
+    if (user && !isEditing) {
+      syncFormWithUser(user);
     }
-  }, [user]);
+  }, [user, isEditing]);
+
+  const handleCancelEdit = () => {
+    syncFormWithUser(user);
+    setIsEditing(false);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,25 +73,6 @@ const Profile = () => {
       setImgError(false);
     }
     setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const isValidOptionalUrl = (val) => {
-    if (!val || !val.trim()) return true;
-    try {
-      const normalized = /^https?:\/\//i.test(val.trim())
-        ? val.trim()
-        : `https://${val.trim()}`;
-      new URL(normalized);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  const normalizeOptionalUrl = (val) => {
-    if (!val || !val.trim()) return "";
-    const trimmed = val.trim();
-    return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
   };
 
   const handleSubmit = async (e) => {
@@ -92,7 +88,7 @@ const Profile = () => {
         toast.error("Please enter a valid Resume URL");
         return;
       }
-      if (!isValidOptionalUrl(formData.photo)) {
+      if (!isValidOptionalUrl(formData.photo, { allowDataImage: true })) {
         toast.error("Please enter a valid Profile Photo URL");
         return;
       }
@@ -101,7 +97,7 @@ const Profile = () => {
         toast.error("Please enter a valid Company Website URL");
         return;
       }
-      if (!isValidOptionalUrl(formData.companyLogo)) {
+      if (!isValidOptionalUrl(formData.companyLogo, { allowDataImage: true })) {
         toast.error("Please enter a valid Company Logo URL");
         return;
       }
@@ -109,8 +105,8 @@ const Profile = () => {
 
     const payload = {
       ...formData,
-      photo: normalizeOptionalUrl(formData.photo),
-      companyLogo: normalizeOptionalUrl(formData.companyLogo),
+      photo: normalizeOptionalUrl(formData.photo, { isImage: true }),
+      companyLogo: normalizeOptionalUrl(formData.companyLogo, { isImage: true }),
       website: normalizeOptionalUrl(formData.website),
       resume: normalizeOptionalUrl(formData.resume),
     };
@@ -128,7 +124,9 @@ const Profile = () => {
     const res = await dispatch(updateProfile(payload));
     if (updateProfile.fulfilled.match(res)) {
       dispatch(setUser(res.payload));
+      setImgError(false);
       setIsEditing(false);
+      dispatch(fetchProfile());
     }
   };
 
@@ -144,10 +142,14 @@ const Profile = () => {
   };
 
   const strength = getProfileStrength();
-  const avatarSrc =
-    user?.role === "Recruiter"
-      ? formData.companyLogo || user?.companyLogo
-      : formData.photo || user?.photo;
+  const rawAvatarSrc = isEditing
+    ? user?.role === "Recruiter"
+      ? formData.companyLogo
+      : formData.photo
+    : user?.role === "Recruiter"
+      ? user?.companyLogo || formData.companyLogo
+      : user?.photo || formData.photo;
+  const avatarSrc = resolveImageUrl(rawAvatarSrc);
 
   const inputClass = (editable) =>
     `w-full px-4 py-2.5 rounded-xl text-sm transition-all ${
@@ -186,6 +188,7 @@ const Profile = () => {
                       <img
                         src={avatarSrc}
                         alt={user?.name}
+                        referrerPolicy="no-referrer"
                         onError={() => setImgError(true)}
                         className="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-md bg-white"
                       />
@@ -387,7 +390,7 @@ const Profile = () => {
                     <button
                       type="button"
                       className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors"
-                      onClick={() => setIsEditing(false)}
+                      onClick={handleCancelEdit}
                     >
                       <i className="bi bi-x-lg"></i> Cancel
                     </button>
@@ -590,7 +593,7 @@ const Profile = () => {
                         <button
                           type="button"
                           className="px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold transition-colors"
-                          onClick={() => setIsEditing(false)}
+                          onClick={handleCancelEdit}
                         >
                           Cancel
                         </button>

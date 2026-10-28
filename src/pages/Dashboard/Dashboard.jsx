@@ -17,7 +17,38 @@ import {
 import ApplicantCard from "../../components/ApplicantCard/ApplicantCard";
 import AIAssistantModal from "../../components/AIAssistantModal/AIAssistantModal";
 import { setUser } from "../../features/auth/authSlice";
+import { clearAIResults } from "../../features/ai/aiSlice";
+import { resolveImageUrl } from "../../utils/urlHelper";
 import "./Dashboard.css";
+
+const CompanyBadge = ({ logoUrl, companyName, size = "w-10 h-10" }) => {
+  const [err, setErr] = useState(false);
+  const resolved = resolveImageUrl(logoUrl);
+
+  useEffect(() => {
+    setErr(false);
+  }, [resolved]);
+
+  if (resolved && !err) {
+    return (
+      <img
+        src={resolved}
+        alt={companyName || "Company"}
+        referrerPolicy="no-referrer"
+        onError={() => setErr(true)}
+        className={`${size} rounded-xl object-cover border border-slate-200 bg-white shrink-0`}
+      />
+    );
+  }
+
+  return (
+    <div
+      className={`${size} rounded-xl bg-navy-900 text-white font-display font-bold text-sm flex items-center justify-center shrink-0`}
+    >
+      {(companyName || "C").charAt(0).toUpperCase()}
+    </div>
+  );
+};
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -34,6 +65,16 @@ const Dashboard = () => {
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
   const [selectedJobForApplicants, setSelectedJobForApplicants] = useState("recent");
   const [applicantStatusFilter, setApplicantStatusFilter] = useState("All");
+  const [headerImgError, setHeaderImgError] = useState(false);
+  const [enrichedApplicantsMap, setEnrichedApplicantsMap] = useState({});
+
+  const userAvatarUrl = resolveImageUrl(
+    user?.role === "Recruiter" ? user?.companyLogo : user?.photo,
+  );
+
+  useEffect(() => {
+    setHeaderImgError(false);
+  }, [userAvatarUrl]);
 
   useEffect(() => {
     dispatch(fetchDashboard());
@@ -42,6 +83,49 @@ const Dashboard = () => {
       dispatch(fetchAppliedJobs());
     }
   }, [dispatch, user?.role]);
+
+  // Ensure recentApplications on Recruiter Dashboard always have full applicant profile (photo, skills, experience)
+  useEffect(() => {
+    if (user?.role !== "Recruiter") return;
+    const recent = dashboardData?.recentApplications || [];
+    const jobIdsToEnrich = [
+      ...new Set(
+        recent
+          .filter(
+            (app) =>
+              app?.applicant &&
+              app.applicant.photo === undefined &&
+              (app.job?._id || app.job),
+          )
+          .map((app) => app.job?._id || app.job),
+      ),
+    ];
+    if (jobIdsToEnrich.length === 0) return;
+
+    let isCancelled = false;
+    Promise.all(
+      jobIdsToEnrich.map((jId) =>
+        API_URL.get(`/api/applications/job/${jId}`)
+          .then((res) => res.data?.data || [])
+          .catch(() => []),
+      ),
+    ).then((results) => {
+      if (isCancelled) return;
+      const nextMap = {};
+      results.flat().forEach((fullApp) => {
+        if (fullApp && fullApp._id) {
+          nextMap[fullApp._id] = fullApp;
+        }
+      });
+      if (Object.keys(nextMap).length > 0) {
+        setEnrichedApplicantsMap((prev) => ({ ...prev, ...nextMap }));
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [user?.role, dashboardData?.recentApplications]);
 
   useEffect(() => {
     if (
@@ -83,7 +167,7 @@ const Dashboard = () => {
 
   if (status === "loading" && !dashboardData) {
     return (
-      <div className="min-h-[80vh] bg-slate-50 flex flex-col items-center justify-center p-6">
+      <div className="flex-1 min-h-[calc(100vh-4rem)] bg-slate-50 flex flex-col items-center justify-center p-6">
         <span className="inline-block w-10 h-10 border-4 border-teal-600 border-t-transparent rounded-full animate-spin mb-3"></span>
         <p className="text-sm font-medium text-slate-500">
           Loading your workspace...
@@ -94,7 +178,20 @@ const Dashboard = () => {
 
   const renderRecruiterDashboard = () => {
     const stats = dashboardData?.stats || {};
-    const recentApplications = dashboardData?.recentApplications || [];
+    const recentApplications = (dashboardData?.recentApplications || []).map(
+      (app) => {
+        const enriched = enrichedApplicantsMap[app._id];
+        if (!enriched) return app;
+        return {
+          ...app,
+          resume: app.resume || enriched.resume,
+          applicant: {
+            ...(app.applicant || {}),
+            ...(enriched.applicant || {}),
+          },
+        };
+      },
+    );
     const myJobs = dashboardData?.myJobs || [];
     const activeJobs = myJobs.filter((job) => job.status === "Active");
     const archivedJobs = myJobs.filter((job) => job.status === "Archived");
@@ -118,20 +215,38 @@ const Dashboard = () => {
       <div className="recruiter-dashboard space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-50 border border-teal-200 px-3 py-1 rounded-full mb-2">
-              <i className="bi bi-building-check"></i> Recruiter Workspace
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Recruiter Dashboard
-            </h1>
-            <p className="text-sm text-slate-500 mt-1">
-              Manage your job postings, evaluate applicants, and track hiring metrics.
-            </p>
+          <div className="flex items-center gap-4">
+            {userAvatarUrl && !headerImgError ? (
+              <img
+                src={userAvatarUrl}
+                alt={user?.companyName || user?.name || "Company Logo"}
+                referrerPolicy="no-referrer"
+                onError={() => setHeaderImgError(true)}
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-white shadow-md bg-white shrink-0"
+              />
+            ) : (
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-navy-900 text-white font-display font-extrabold text-2xl flex items-center justify-center shadow-md shrink-0">
+                {(user?.companyName || user?.name || "R")
+                  .charAt(0)
+                  .toUpperCase()}
+              </div>
+            )}
+            <div>
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-50 border border-teal-200 px-3 py-1 rounded-full mb-1.5">
+                <i className="bi bi-building-check"></i>{" "}
+                {user?.companyName || "Recruiter Workspace"}
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight m-0">
+                Recruiter Dashboard
+              </h1>
+              <p className="text-sm text-slate-500 mt-0.5 mb-0">
+                Manage your job postings, evaluate applicants, and track hiring metrics.
+              </p>
+            </div>
           </div>
           <Link
             to="/create-job"
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold shadow-sm transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold shadow-sm transition-colors no-underline"
           >
             <i className="bi bi-plus-lg"></i> Post New Job
           </Link>
@@ -205,7 +320,14 @@ const Dashboard = () => {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto lg:min-w-[420px]">
             <select
               className="flex-1 px-3.5 py-2.5 rounded-xl bg-navy-800 border border-slate-700 text-sm text-white focus:outline-none focus:border-teal-400"
-              onChange={(e) => setSelectedJobIdForAI(e.target.value)}
+              onChange={(e) => {
+                const nextJobId = e.target.value;
+                setSelectedJobIdForAI(nextJobId);
+                dispatch(clearAIResults());
+                if (nextJobId) {
+                  dispatch(fetchApplicantsForJob(nextJobId));
+                }
+              }}
               value={selectedJobIdForAI}
               aria-label="Select a Job for AI Assistant"
             >
@@ -223,6 +345,7 @@ const Dashboard = () => {
                   toast.error("Please select a job first");
                   return;
                 }
+                dispatch(fetchApplicantsForJob(selectedJobIdForAI));
                 setIsAIModalOpen(true);
               }}
               disabled={!selectedJobIdForAI}
@@ -253,32 +376,45 @@ const Dashboard = () => {
                   className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-card hover:shadow-card-hover transition-all flex flex-col justify-between gap-4"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <Link
-                        to={`/jobs/${job._id}`}
-                        className="text-base font-bold text-slate-900 hover:text-teal-600 transition-colors no-underline"
-                      >
-                        {job.title}
-                      </Link>
-                      <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-slate-500">
-                        <span className="inline-flex items-center gap-1">
-                          <i className="bi bi-geo-alt text-teal-600"></i>
-                          {job.location}
-                        </span>
-                        {job.employmentType && (
+                    <div className="flex items-start gap-3 min-w-0">
+                      <CompanyBadge
+                        logoUrl={
+                          job.recruiter?.companyLogo || user?.companyLogo
+                        }
+                        companyName={
+                          job.company ||
+                          job.companyName ||
+                          user?.companyName ||
+                          "Company"
+                        }
+                      />
+                      <div className="min-w-0">
+                        <Link
+                          to={`/jobs/${job._id}`}
+                          className="text-base font-bold text-slate-900 hover:text-teal-600 transition-colors no-underline block truncate"
+                        >
+                          {job.title}
+                        </Link>
+                        <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-slate-500">
                           <span className="inline-flex items-center gap-1">
-                            <i className="bi bi-briefcase text-slate-400"></i>
-                            {job.employmentType}
+                            <i className="bi bi-geo-alt text-teal-600"></i>
+                            {job.location}
                           </span>
-                        )}
-                        {job.salary && (
-                          <span className="inline-flex items-center gap-1 font-medium text-slate-700">
-                            ₹{job.salary} LPA
-                          </span>
-                        )}
+                          {job.employmentType && (
+                            <span className="inline-flex items-center gap-1">
+                              <i className="bi bi-briefcase text-slate-400"></i>
+                              {job.employmentType}
+                            </span>
+                          )}
+                          {job.salary && (
+                            <span className="inline-flex items-center gap-1 font-medium text-slate-700">
+                              ₹{job.salary} LPA
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
                       Active
                     </span>
                   </div>
@@ -350,15 +486,28 @@ const Dashboard = () => {
                   className="bg-slate-50/80 rounded-2xl border border-slate-200 p-5 flex flex-col justify-between gap-4"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="text-base font-bold text-slate-700">
-                        {job.title}
-                      </h3>
-                      <p className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
-                        <i className="bi bi-geo-alt"></i> {job.location}
-                      </p>
+                    <div className="flex items-start gap-3 min-w-0">
+                      <CompanyBadge
+                        logoUrl={
+                          job.recruiter?.companyLogo || user?.companyLogo
+                        }
+                        companyName={
+                          job.company ||
+                          job.companyName ||
+                          user?.companyName ||
+                          "Company"
+                        }
+                      />
+                      <div className="min-w-0">
+                        <h3 className="text-base font-bold text-slate-700 truncate m-0">
+                          {job.title}
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-1 mb-0 flex items-center gap-1.5">
+                          <i className="bi bi-geo-alt"></i> {job.location}
+                        </p>
+                      </div>
                     </div>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-200/80 text-slate-700">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-200/80 text-slate-700 shrink-0">
                       <i className="bi bi-archive"></i> Archived
                     </span>
                   </div>
@@ -525,16 +674,31 @@ const Dashboard = () => {
       <div className="applicant-dashboard space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-50 border border-teal-200 px-3 py-1 rounded-full mb-2">
-              <i className="bi bi-person-workspace"></i> Candidate Portal
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              My Dashboard
-            </h1>
-            <p className="text-sm text-slate-500 mt-1">
-              Track your job applications, saved roles, and real-time hiring updates.
-            </p>
+          <div className="flex items-center gap-4">
+            {userAvatarUrl && !headerImgError ? (
+              <img
+                src={userAvatarUrl}
+                alt={user?.name || "Applicant"}
+                referrerPolicy="no-referrer"
+                onError={() => setHeaderImgError(true)}
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-white shadow-md bg-white shrink-0"
+              />
+            ) : (
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-navy-900 text-white font-display font-extrabold text-2xl flex items-center justify-center shadow-md shrink-0">
+                {(user?.name || "A").charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div>
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-50 border border-teal-200 px-3 py-1 rounded-full mb-1.5">
+                <i className="bi bi-person-workspace"></i> Candidate Portal
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight m-0">
+                My Dashboard
+              </h1>
+              <p className="text-sm text-slate-500 mt-0.5 mb-0">
+                Track your job applications, saved roles, and real-time hiring updates.
+              </p>
+            </div>
           </div>
           <Link
             to="/jobs"
@@ -620,22 +784,30 @@ const Dashboard = () => {
                       app.job?.companyName ||
                       (app.job?.recruiter && app.job.recruiter.companyName) ||
                       "Company";
+                    const companyLogo = app.job?.recruiter?.companyLogo;
                     return (
                       <div
                         key={app._id}
                         className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 space-y-3"
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <Link
-                              to={`/jobs/${app.job?._id}`}
-                              className="text-sm font-bold text-slate-900 hover:text-teal-600 no-underline block truncate"
-                            >
-                              {app.job?.title || "Unknown Role"}
-                            </Link>
-                            <p className="text-xs font-medium text-slate-500 mt-0.5 mb-0">
-                              {companyName}
-                            </p>
+                          <div className="flex items-center gap-3 min-w-0">
+                            <CompanyBadge
+                              logoUrl={companyLogo}
+                              companyName={companyName}
+                              size="w-9 h-9"
+                            />
+                            <div className="min-w-0">
+                              <Link
+                                to={`/jobs/${app.job?._id}`}
+                                className="text-sm font-bold text-slate-900 hover:text-teal-600 no-underline block truncate"
+                              >
+                                {app.job?.title || "Unknown Role"}
+                              </Link>
+                              <p className="text-xs font-medium text-slate-500 mt-0.5 mb-0 truncate">
+                                {companyName}
+                              </p>
+                            </div>
                           </div>
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border shrink-0 ${getStatusBadgeClasses(
@@ -699,6 +871,7 @@ const Dashboard = () => {
                           (app.job?.recruiter &&
                             app.job.recruiter.companyName) ||
                           "Company";
+                        const companyLogo = app.job?.recruiter?.companyLogo;
                         return (
                           <tr
                             key={app._id}
@@ -713,7 +886,14 @@ const Dashboard = () => {
                               </Link>
                             </td>
                             <td className="py-4 px-4 text-slate-600 font-medium">
-                              {companyName}
+                              <div className="flex items-center gap-2.5">
+                                <CompanyBadge
+                                  logoUrl={companyLogo}
+                                  companyName={companyName}
+                                  size="w-8 h-8"
+                                />
+                                <span>{companyName}</span>
+                              </div>
                             </td>
                             <td className="py-4 px-4 text-slate-500">
                               {new Date(
@@ -800,8 +980,15 @@ const Dashboard = () => {
                       : "Saved Job Opportunity";
                   const company =
                     typeof job === "object"
-                      ? job.company || job.companyName || "Hiring Company"
+                      ? job.company ||
+                        job.companyName ||
+                        job.recruiter?.companyName ||
+                        "Hiring Company"
                       : "View details to see company";
+                  const companyLogo =
+                    typeof job === "object"
+                      ? job.recruiter?.companyLogo
+                      : "";
                   const location =
                     typeof job === "object" && job.location ? job.location : null;
 
@@ -810,19 +997,26 @@ const Dashboard = () => {
                       key={jobId}
                       className="rounded-xl border border-slate-200 p-4 flex flex-col justify-between hover:border-teal-300 transition-colors bg-slate-50/40"
                     >
-                      <div>
-                        <h3 className="font-bold text-slate-900 text-base line-clamp-1">
-                          {title}
-                        </h3>
-                        <p className="text-xs font-medium text-slate-500 mt-1">
-                          {company}
-                        </p>
-                        {location && (
-                          <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
-                            <i className="bi bi-geo-alt text-teal-600"></i>{" "}
-                            {location}
+                      <div className="flex items-start gap-3">
+                        <CompanyBadge
+                          logoUrl={companyLogo}
+                          companyName={company}
+                          size="w-10 h-10"
+                        />
+                        <div className="min-w-0">
+                          <h3 className="font-bold text-slate-900 text-base line-clamp-1 m-0">
+                            {title}
+                          </h3>
+                          <p className="text-xs font-medium text-slate-500 mt-1 mb-0 truncate">
+                            {company}
                           </p>
-                        )}
+                          {location && (
+                            <p className="text-xs text-slate-400 mt-1 mb-0 flex items-center gap-1">
+                              <i className="bi bi-geo-alt text-teal-600"></i>{" "}
+                              {location}
+                            </p>
+                          )}
+                        </div>
                       </div>
 
                       <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200/70">

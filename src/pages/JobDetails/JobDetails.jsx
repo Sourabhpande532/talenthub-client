@@ -17,7 +17,12 @@ import {
   withdrawApplication,
 } from "../../features/application/applicationSlice";
 import JobCard from "../../components/JobCard/JobCard";
+import { MarkdownRenderer } from "../../components/MarkdownRenderer/MarkdownRenderer";
 import { setUser } from "../../features/auth/authSlice";
+import {
+  normalizeOptionalUrl,
+  resolveImageUrl,
+} from "../../utils/urlHelper";
 import "./JobDetails.css";
 
 const formatExperience = (exp) => {
@@ -27,14 +32,6 @@ const formatExperience = (exp) => {
     return exp;
   }
   return `${exp} Yrs`;
-};
-
-const normalizeExternalUrl = (url) => {
-  if (!url || typeof url !== "string") return "";
-  const trimmed = url.trim();
-  if (!trimmed) return "";
-  if (/^https?:\/\//i.test(trimmed)) return trimmed;
-  return `https://${trimmed}`;
 };
 
 const JobDetails = () => {
@@ -73,6 +70,10 @@ const JobDetails = () => {
       dispatch(clearAIResults());
     };
   }, [dispatch, id, token, user?.role]);
+
+  useEffect(() => {
+    setLogoError(false);
+  }, [currentJob?.recruiter?.companyLogo]);
 
   useEffect(() => {
     if (Array.isArray(appliedJobs) && id) {
@@ -150,7 +151,7 @@ const JobDetails = () => {
 
   if (currentJobStatus === "loading") {
     return (
-      <div className="min-h-[75vh] flex flex-col items-center justify-center bg-slate-50">
+      <div className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center bg-slate-50">
         <div
           className="w-10 h-10 border-4 border-slate-200 border-t-navy-900 rounded-full animate-spin"
           role="status"></div>
@@ -163,7 +164,7 @@ const JobDetails = () => {
 
   if (!currentJob) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center bg-slate-50 px-4 text-center">
+      <div className="flex-1 min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center bg-slate-50 px-4 text-center">
         <div className="w-14 h-14 rounded-full bg-slate-200/70 text-slate-500 flex items-center justify-center text-2xl mb-3">
           <i className="bi bi-briefcase"></i>
         </div>
@@ -188,8 +189,16 @@ const JobDetails = () => {
     currentJob.companyName ||
     currentJob.recruiter?.companyName ||
     "Company";
-  const companyLogo = currentJob.recruiter?.companyLogo || "";
-  const companyWebsite = normalizeExternalUrl(currentJob.recruiter?.website);
+  const isOwnRecruiterJob =
+    user?.role === "Recruiter" &&
+    currentJob.recruiter &&
+    (currentJob.recruiter._id === user._id ||
+      currentJob.recruiter === user._id);
+  const companyLogo = resolveImageUrl(
+    currentJob.recruiter?.companyLogo ||
+      (isOwnRecruiterJob ? user?.companyLogo : ""),
+  );
+  const companyWebsite = normalizeOptionalUrl(currentJob.recruiter?.website);
 
   const cleanSkills = Array.isArray(currentJob.skills)
     ? currentJob.skills
@@ -204,10 +213,10 @@ const JobDetails = () => {
       currentJob.location.toLowerCase().includes("remote"));
 
   return (
-    <main className="job-details-page bg-slate-50 min-h-screen py-6 sm:py-8">
+    <main className="job-details-page flex-1 bg-slate-50 min-h-[calc(100vh-4rem)] py-5 sm:py-8 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back to Jobs Navigation Button */}
-        <div className="mb-5">
+        <div className="mb-4 sm:mb-5">
           <Link
             to="/jobs"
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white hover:bg-slate-100 text-slate-700 hover:text-navy-900 border border-slate-200 text-sm font-semibold shadow-sm transition-colors no-underline">
@@ -216,29 +225,30 @@ const JobDetails = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
           {/* Left / Main Content Column */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className="lg:col-span-8 space-y-5 sm:space-y-6 min-w-0">
             {/* Primary Job Details Card */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-5 sm:p-7 md:p-8">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-4 sm:p-7 md:p-8">
               {/* Role Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4 pb-6 border-b border-slate-100">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3.5 sm:gap-4 pb-5 sm:pb-6 border-b border-slate-100">
                 {companyLogo && !logoError ? (
                   <img
                     src={companyLogo}
                     alt={companyName}
-                    className="w-16 h-16 rounded-xl object-cover border border-slate-200 bg-slate-50 flex-shrink-0"
+                    referrerPolicy="no-referrer"
+                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-slate-200 bg-slate-50 flex-shrink-0"
                     onError={() => setLogoError(true)}
                   />
                 ) : (
-                  <div className="w-16 h-16 rounded-xl bg-navy-900 text-white font-display font-bold text-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-navy-900 text-white font-display font-bold text-xl sm:text-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
                     {companyName.charAt(0).toUpperCase()}
                   </div>
                 )}
 
                 <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <span className="text-xs font-bold uppercase tracking-wider text-brand-700">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1.5">
+                    <span className="text-xs font-bold uppercase tracking-wider text-brand-700 break-words">
                       {companyName}
                     </span>
                     {currentJob.employmentType && (
@@ -255,15 +265,15 @@ const JobDetails = () => {
                       {isRemote ? "Remote" : "On-site"}
                     </span>
                   </div>
-                  <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 leading-tight m-0">
+                  <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 leading-tight break-words m-0">
                     {currentJob.title}
                   </h1>
                 </div>
               </div>
 
               {/* Key Highlights Bar */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-5 border-b border-slate-100">
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 py-4 sm:py-5 border-b border-slate-100">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 min-w-0">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 m-0">
                     Compensation
                   </p>
@@ -273,7 +283,7 @@ const JobDetails = () => {
                   </p>
                 </div>
 
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 min-w-0">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 m-0">
                     Experience
                   </p>
@@ -283,17 +293,17 @@ const JobDetails = () => {
                   </p>
                 </div>
 
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 min-w-0">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 m-0">
                     Location
                   </p>
-                  <p className="text-sm sm:text-base font-bold text-slate-800 mt-1 mb-0 truncate">
+                  <p className="text-sm sm:text-base font-bold text-slate-800 mt-1 mb-0 break-words">
                     <i className="bi bi-geo-alt text-slate-400 mr-1 text-xs"></i>
                     {currentJob.location}
                   </p>
                 </div>
 
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 min-w-0">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 m-0">
                     Apply Before
                   </p>
@@ -314,7 +324,7 @@ const JobDetails = () => {
               </div>
 
               {/* Job Description */}
-              <div className="py-6 border-b border-slate-100">
+              <div className="py-5 sm:py-6 border-b border-slate-100">
                 <h2 className="font-display text-lg font-bold text-slate-900 mb-3">
                   Job Description
                 </h2>
@@ -326,7 +336,7 @@ const JobDetails = () => {
               </div>
 
               {/* Required Skills */}
-              <div className="pt-6">
+              <div className="pt-5 sm:pt-6">
                 <h2 className="font-display text-lg font-bold text-slate-900 mb-3">
                   Skills Required
                 </h2>
@@ -335,7 +345,7 @@ const JobDetails = () => {
                     {cleanSkills.map((skill, idx) => (
                       <span
                         key={idx}
-                        className="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-slate-100 text-slate-800 border border-slate-200/90">
+                        className="px-3 sm:px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-slate-100 text-slate-800 border border-slate-200/90 break-words">
                         {skill}
                       </span>
                     ))}
@@ -351,16 +361,16 @@ const JobDetails = () => {
             {/* ✨ AI Interview Preparation Section (Applicant) */}
             {user?.role === "Applicant" && (
               <div className="bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden">
-                <div className="bg-navy-900 text-white px-5 sm:px-7 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <span className="w-9 h-9 rounded-lg bg-brand-600 text-white flex items-center justify-center flex-shrink-0">
+                <div className="bg-navy-900 text-white p-4 sm:px-7 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4">
+                  <div className="flex items-start sm:items-center gap-3 min-w-0">
+                    <span className="w-9 h-9 rounded-lg bg-brand-600 text-white flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-0">
                       <i className="bi bi-robot text-lg"></i>
                     </span>
-                    <div>
-                      <h2 className="font-display text-base sm:text-lg font-bold text-white m-0">
+                    <div className="min-w-0 flex-1">
+                      <h2 className="font-display text-base sm:text-lg font-bold text-white leading-snug m-0">
                         AI Interview Preparation
                       </h2>
-                      <p className="text-xs text-slate-300 m-0">
+                      <p className="text-xs text-slate-300 leading-relaxed mt-0.5 m-0 break-words">
                         5 likely interview questions, topics to revise &
                         preparation tips for {currentJob.title}
                       </p>
@@ -371,7 +381,7 @@ const JobDetails = () => {
                     type="button"
                     onClick={handleGeneratePrep}
                     disabled={aiStatus === "loading"}
-                    className="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 disabled:opacity-60 text-white text-xs sm:text-sm font-semibold transition-colors inline-flex items-center justify-center gap-2 self-start sm:self-auto flex-shrink-0">
+                    className="w-full sm:w-auto px-4 py-2.5 sm:py-2 rounded-xl sm:rounded-lg bg-brand-600 hover:bg-brand-500 disabled:opacity-60 text-white text-xs sm:text-sm font-semibold transition-colors inline-flex items-center justify-center gap-2 flex-shrink-0 shadow-sm">
                     {aiStatus === "loading" ? (
                       <>
                         <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
@@ -390,7 +400,7 @@ const JobDetails = () => {
                   </button>
                 </div>
 
-                <div className="p-5 sm:p-7">
+                <div className="p-4 sm:p-7">
                   {aiStatus === "idle" && !interviewPrepResult && (
                     <div className="text-center py-6 px-4 bg-slate-50 rounded-xl border border-dashed border-slate-200">
                       <i className="bi bi-magic text-2xl text-brand-600 block mb-2"></i>
@@ -416,15 +426,13 @@ const JobDetails = () => {
                   )}
 
                   {aiStatus === "succeeded" && interviewPrepResult && (
-                    <div className="ai-response p-5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-800 leading-relaxed">
-                      <pre className="m-0 whitespace-pre-wrap break-words font-sans">
-                        {interviewPrepResult}
-                      </pre>
+                    <div className="ai-response p-4 sm:p-5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-800 leading-relaxed">
+                      <MarkdownRenderer content={interviewPrepResult} />
                     </div>
                   )}
 
                   {aiStatus === "failed" && (
-                    <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center justify-between gap-3">
+                    <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <span>
                         <i className="bi bi-exclamation-triangle-fill mr-2"></i>
                         Failed to generate AI preparation. Please try again.
@@ -432,7 +440,7 @@ const JobDetails = () => {
                       <button
                         type="button"
                         onClick={handleGeneratePrep}
-                        className="px-3 py-1.5 rounded-lg bg-red-600 text-white text-xs font-semibold hover:bg-red-700">
+                        className="px-3 py-1.5 rounded-lg bg-red-600 text-white text-xs font-semibold hover:bg-red-700 self-start sm:self-auto">
                         Retry
                       </button>
                     </div>
@@ -546,17 +554,27 @@ const JobDetails = () => {
               </div>
 
               {/* Recruiter Information Card (PRD Required) */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-6">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-card p-5 sm:p-6">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">
                   About the Recruiter & Company
                 </h3>
                 <div className="flex items-center gap-3.5 mb-4">
-                  <div className="w-11 h-11 rounded-full bg-navy-900 text-white font-display font-bold text-base flex items-center justify-center flex-shrink-0">
-                    {currentJob.recruiter?.name
-                      ? currentJob.recruiter.name.charAt(0).toUpperCase()
-                      : companyName.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="min-w-0">
+                  {companyLogo && !logoError ? (
+                    <img
+                      src={companyLogo}
+                      alt={companyName}
+                      referrerPolicy="no-referrer"
+                      className="w-11 h-11 rounded-xl object-cover border border-slate-200 bg-slate-50 flex-shrink-0"
+                      onError={() => setLogoError(true)}
+                    />
+                  ) : (
+                    <div className="w-11 h-11 rounded-xl bg-navy-900 text-white font-display font-bold text-base flex items-center justify-center flex-shrink-0">
+                      {currentJob.recruiter?.name
+                        ? currentJob.recruiter.name.charAt(0).toUpperCase()
+                        : companyName.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
                     <h4 className="font-display text-sm font-bold text-slate-900 truncate m-0">
                       {currentJob.recruiter?.name || "Hiring Manager"}
                     </h4>
@@ -564,7 +582,7 @@ const JobDetails = () => {
                       {currentJob.recruiter?.companyName || companyName}
                     </p>
                     {currentJob.recruiter?.email && (
-                      <p className="text-xs text-slate-500 truncate m-0 mt-0.5">
+                      <p className="text-xs text-slate-500 break-all sm:truncate m-0 mt-0.5">
                         {currentJob.recruiter.email}
                       </p>
                     )}
@@ -572,7 +590,7 @@ const JobDetails = () => {
                 </div>
 
                 {currentJob.recruiter?.aboutCompany && (
-                  <p className="text-xs text-slate-600 leading-relaxed mb-3">
+                  <p className="text-xs text-slate-600 leading-relaxed break-words mb-3">
                     {currentJob.recruiter.aboutCompany}
                   </p>
                 )}

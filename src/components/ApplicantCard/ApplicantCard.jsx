@@ -1,20 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import {
+  normalizeOptionalUrl,
+  resolveImageUrl,
+} from "../../utils/urlHelper";
 import "./ApplicantCard.css";
-
-const normalizeExternalUrl = (url) => {
-  if (!url || typeof url !== "string") return "";
-  const trimmed = url.trim();
-  if (!trimmed) return "";
-  if (/^https?:\/\//i.test(trimmed)) return trimmed;
-  return `https://${trimmed}`;
-};
 
 const ApplicantCard = ({ application, onStatusChange }) => {
   const [updatingStatus, setUpdatingStatus] = useState(null);
   const [imgError, setImgError] = useState(false);
   const applicant = application?.applicant || {};
+  const applicantPhoto = resolveImageUrl(applicant?.photo);
 
-  const resumeUrl = normalizeExternalUrl(
+  useEffect(() => {
+    setImgError(false);
+  }, [applicantPhoto]);
+
+  const resumeUrl = normalizeOptionalUrl(
     application?.resume || applicant?.resume,
   );
   const appliedDate = application?.appliedAt || application?.createdAt;
@@ -55,11 +56,12 @@ const ApplicantCard = ({ application, onStatusChange }) => {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Candidate Identity */}
         <div className="flex items-start sm:items-center gap-3.5 min-w-0 lg:w-4/12">
-          {applicant?.photo && !imgError ? (
+          {applicantPhoto && !imgError ? (
             <img
-              src={applicant.photo}
+              src={applicantPhoto}
               alt={applicant?.name || "Candidate"}
-              className="w-12 h-12 rounded-full object-cover border border-slate-200 flex-shrink-0"
+              referrerPolicy="no-referrer"
+              className="w-12 h-12 rounded-full object-cover border border-slate-200 flex-shrink-0 bg-slate-50"
               onError={() => setImgError(true)}
             />
           ) : (
